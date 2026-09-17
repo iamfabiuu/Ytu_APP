@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-yellow: #ffc20e;
+  --color-brand-blue: #12409c;
+  --color-brand-red: #e23428;
+  --color-ink: #1a1a2e;
+  --color-sand: #fdf6ec;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply font-sans text-ink antialiased;
+    overscroll-behavior-y: none;
+  }
+}
+
+@import "tailwindcss";
+
+@theme {
+  --color-brand-yellow: #ffc20e;
+  --color-brand-blue: #12409c;
+  --color-brand-red: #e23428;
+  --color-ink: #1a1a2e;
+  --color-sand: #fdf6ec;
+
+  /* aliases usados na UI */
+  --color-navy: #12409c;
+  --color-accent: #e23428;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-sand font-sans text-ink antialiased;
+    overscroll-behavior-y: none;
+  }
+}
+
+@keyframes pin-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--pin);
+  }
+  70% {
+    box-shadow: 0 0 0 16px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+.pin-active .pin-head {
+  animation: pin-pulse 1.8s ease-out infinite;
+}
