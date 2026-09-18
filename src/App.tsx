@@ -15,6 +15,9 @@ import Personalizacao from "./pages/Personalizacao";
 import { RouteDetail } from "./pages/RouteDetail";
 import { WeeklyRouteDetail } from "./pages/WeeklyRouteDetail";
 import { useAuth } from "./layouts/lib/useAuth";
+import { PlaceRoute } from "./pages/PlaceRoute";
+import { CaisDoSertao } from "./pages/CaisDoSertao";
+import { MercadoBoaVista } from "./pages/MercadoBoaVista";
 import {
   GuestOnly,
   RequireAuth,
@@ -67,6 +70,9 @@ export default function App() {
               <Route path="/place/:id" element={<PlaceDetail />} />
               <Route path="/rotas/:id" element={<RouteDetail />} />
               <Route path="/rotas/destaque" element={<WeeklyRouteDetail />} />
+              <Route path="/lugar/cais-do-sertao" element={<CaisDoSertao />} />
+              <Route path="/lugar/mercado-da-boa-vista" element={<MercadoBoaVista />} />
+              <Route path="/lugar/:id" element={<PlaceRoute />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
