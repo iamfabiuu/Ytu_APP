@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import Onboarding from "./pages/Onboarding";
 import Personalizacao from "./pages/Personalizacao";
+import { RouteDetail } from "./pages/RouteDetail";
 import { useAuth } from "./layouts/lib/useAuth";
 import {
   GuestOnly,
@@ -63,10 +64,13 @@ export default function App() {
               <Route path="/cupons" element={<Coupons />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/place/:id" element={<PlaceDetail />} />
+              <Route path="/rotas/:id" element={<RouteDetail />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+
+
       </main>
 
       {showNav && <BottomNav />}

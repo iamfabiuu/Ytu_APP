@@ -10,6 +10,7 @@ import {
 import { RealMap, type MapHandle } from "../components/RealMap";
 import { PLACES, type Place } from "../data/places";
 
+
 const CATS = [
   "Tudo",
   "Cultura",
@@ -91,11 +92,10 @@ export function MapScreen() {
                 type="button"
                 onClick={() => selectCat(c)}
                 aria-pressed={cat === c}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold shadow-md shadow-black/5 transition active:scale-95 ${
-                  cat === c
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold shadow-md shadow-black/5 transition active:scale-95 ${cat === c
                     ? "bg-navy text-white"
                     : "bg-white/95 text-navy backdrop-blur"
-                }`}
+                  }`}
               >
                 {c}
               </button>
@@ -130,9 +130,8 @@ export function MapScreen() {
 
       {/* ---------- atribuição obrigatória ---------- */}
       <p
-        className={`absolute left-4 z-20 text-[9px] font-medium text-ink/50 transition-all duration-300 ${
-          place ? "bottom-[160px]" : "bottom-24"
-        }`}
+        className={`absolute left-4 z-20 text-[9px] font-medium text-ink/50 transition-all duration-300 ${place ? "bottom-[160px]" : "bottom-24"
+          }`}
       >
         © MapTiler © OpenStreetMap
       </p>

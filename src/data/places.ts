@@ -15,8 +15,8 @@ export const PLACES: Place[] = [
     cat: "Cultura",
     dist: "1,2 km",
     hours: "Aberto até 17h",
-    lng: -34.873,
-    lat: -8.063,
+    lng: -34.871571,
+    lat: -8.061503,
   },
   {
     id: "marcozero",

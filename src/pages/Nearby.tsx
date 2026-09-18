@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { ROUTES, type Route } from "../data/routes";
 
 const TABS = [
   "Recomendados",
@@ -15,46 +16,6 @@ const TAG_STYLE: Record<Tab, { bg: string; chip: string; text: string }> = {
   Perfomáticas: { bg: "#C81E12", chip: "#0B4FBF", text: "#FFFFFF" },
   "Em grupo": { bg: "#F59300", chip: "#0B4FBF", text: "#FFFFFF" },
 };
-
-type Route = {
-  id: string;
-  title: string;
-  tag: Tab;
-  duration: string;
-  stops: number;
-  price: string;
-  img: string;
-};
-
-const ROUTES: Route[] = [
-  {
-    id: "frevo",
-    title: "Paço do Frevo",
-    tag: "Econômicas",
-    duration: "3h",
-    stops: 4,
-    price: "Até R$15,00",
-    img: "/paco-do-frevo.jpg",
-  },
-  {
-    id: "sertao",
-    title: "Cais do Sertão",
-    tag: "Perfomáticas",
-    duration: "3h30",
-    stops: 6,
-    price: "Até R$80,00",
-    img: "/cais-sertao.jpg",
-  },
-  {
-    id: "boavista",
-    title: "Mercado da Boa Vista",
-    tag: "Em grupo",
-    duration: "2h",
-    stops: 3,
-    price: "Até R$50,00",
-    img: "/_mercado_da_boa_vista.jpg",
-  },
-];
 
 export function Nearby() {
   const [tab, setTab] = useState<Tab>("Recomendados");
@@ -165,7 +126,7 @@ function RouteCard({ route }: { route: Route }) {
 
         <div className="relative mt-2.5 space-y-1.5 text-[13px] font-medium text-white/95">
           <p className="flex items-center gap-1.5">
-            <ClockIcon /> {route.duration} • {route.stops} Paradas
+            <ClockIcon /> {route.duration} • {route.stops.length} Paradas
           </p>
           <p className="flex items-center gap-1.5">
             <TicketIcon /> {route.price}
