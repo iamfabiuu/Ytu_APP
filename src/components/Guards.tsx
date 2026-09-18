@@ -1,6 +1,6 @@
 // src/components/Guards.tsx
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../lib/useAuth";
+import { useAuth } from "../layouts/lib/useAuth";
 
 export function GuestOnly() {
   const { logged, onboarded } = useAuth();

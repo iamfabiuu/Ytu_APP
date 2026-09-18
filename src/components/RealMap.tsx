@@ -7,64 +7,7 @@ import {
 } from "react";
 import { Map as MTMap, Marker, config } from "@maptiler/sdk";
 import "@maptiler/sdk/dist/maptiler-sdk.css";
-
-export type Place = {
-  id: string;
-  label: string;
-  cat: string;
-  dist: string;
-  hours: string;
-  lng: number;
-  lat: number;
-};
-
-export const PLACES: Place[] = [
-  {
-    id: "frevo",
-    label: "Paço do Frevo",
-    cat: "Cultura",
-    dist: "1,2 km",
-    hours: "Aberto até 17h",
-    lng: -34.873,
-    lat: -8.063,
-  },
-  {
-    id: "marcozero",
-    label: "Marco Zero",
-    cat: "Patrimônio",
-    dist: "1,4 km",
-    hours: "Aberto 24h",
-    lng: -34.8712,
-    lat: -8.0632,
-  },
-  {
-    id: "boaviagem",
-    label: "Praia de Boa Viagem",
-    cat: "Praias",
-    dist: "6,8 km",
-    hours: "Aberto 24h",
-    lng: -34.893,
-    lat: -8.124,
-  },
-  {
-    id: "ricardo",
-    label: "Instituto Ricardo Brennand",
-    cat: "Cultura",
-    dist: "9,1 km",
-    hours: "Aberto até 17h",
-    lng: -34.9585,
-    lat: -8.076,
-  },
-  {
-    id: "mercado",
-    label: "Mercado de São José",
-    cat: "Comida",
-    dist: "1,9 km",
-    hours: "Aberto até 17h",
-    lng: -34.877,
-    lat: -8.068,
-  },
-];
+import { PLACES, type Place } from "../data/places";
 
 const ICONS: Record<string, string> = {
   Cultura: `<path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/>`,
@@ -138,7 +81,7 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
       center: RECIFE,
       zoom: 14,
       terrain: false,
-      attributionControl: false,
+      attributionControl: {},
       navigationControl: false,
       geolocateControl: false,
     });

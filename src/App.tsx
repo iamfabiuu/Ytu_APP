@@ -1,8 +1,8 @@
 // src/App.tsx
-import { Routes, Route, Navigate, useLocation, Outlet } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { BottomNav } from "./components/BottomNav";
 import { Home } from "./pages/Home";
-import { MapScreen } from "./pages/Map";
+import { MapScreen } from "./screens/MapScreen";
 import { Nearby } from "./pages/Nearby";
 import { Saved } from "./pages/Saved";
 import { Profile } from "./pages/Profile";
@@ -12,7 +12,7 @@ import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import Onboarding from "./pages/Onboarding";
 import Personalizacao from "./pages/Personalizacao";
-import { useAuth } from "./lib/useAuth";
+import { useAuth } from "./layouts/lib/useAuth";
 import {
   GuestOnly,
   RequireAuth,

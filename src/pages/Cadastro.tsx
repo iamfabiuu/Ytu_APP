@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
-import { fakeAuth } from "../lib/fakeAuth";
+import { fakeAuth } from "../layouts/lib/fakeAuth";
 import logo from "/logo.svg";
 import padrao from "/image 59.svg";
 import googleIcon from "/icons/google.svg";

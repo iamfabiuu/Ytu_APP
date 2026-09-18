@@ -7,7 +7,8 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-react";
-import { RealMap, PLACES, type MapHandle } from "../components/RealMap";
+import { RealMap, type MapHandle } from "../components/RealMap";
+import { PLACES, type Place } from "../data/places";
 
 const CATS = [
   "Tudo",
@@ -23,29 +24,34 @@ export function MapScreen() {
   const [cat, setCat] = useState<string>("Tudo");
   const mapRef = useRef<MapHandle>(null);
 
-  const places = useMemo(
-    () => (cat === "Tudo" ? PLACES : PLACES.filter((p) => p.cat === cat)),
+  const places = useMemo<Place[]>(
+    () =>
+      cat === "Tudo" ? PLACES : PLACES.filter((p: Place) => p.cat === cat),
     [cat],
   );
 
-  const place = places.find((p) => p.id === selected) ?? null;
+  const place = places.find((p: Place) => p.id === selected) ?? null;
 
   /* troca de categoria sem deixar seleção órfã */
   const selectCat = useCallback((c: string) => {
     setCat(c);
-    const next = c === "Tudo" ? PLACES : PLACES.filter((p) => p.cat === c);
-    setSelected((s) => (s && next.some((p) => p.id === s) ? s : null));
+    const next =
+      c === "Tudo" ? PLACES : PLACES.filter((p: Place) => p.cat === c);
+    setSelected((s) => (s && next.some((p: Place) => p.id === s) ? s : null));
   }, []);
 
-  const controls = [
-    { Icon: Plus, label: "Aproximar", action: () => mapRef.current?.zoomIn() },
-    { Icon: Minus, label: "Afastar", action: () => mapRef.current?.zoomOut() },
-    {
-      Icon: Crosshair,
-      label: "Minha localização",
-      action: () => mapRef.current?.locate(),
-    },
-  ];
+  const zoomIn = useCallback(() => mapRef.current?.zoomIn(), []);
+  const zoomOut = useCallback(() => mapRef.current?.zoomOut(), []);
+  const locate = useCallback(() => mapRef.current?.locate(), []);
+
+  const controls = useMemo(
+    () => [
+      { Icon: Plus, label: "Aproximar", action: zoomIn },
+      { Icon: Minus, label: "Afastar", action: zoomOut },
+      { Icon: Crosshair, label: "Minha localização", action: locate },
+    ],
+    [locate, zoomIn, zoomOut],
+  );
 
   return (
     <div className="relative h-[100dvh] overflow-hidden bg-sand">

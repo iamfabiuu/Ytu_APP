@@ -55,6 +55,12 @@ export const fakeAuth = {
 
   isOnboarded: () => localStorage.getItem(ONBOARD_KEY) === "1",
 
+  setOnboarded: (value: boolean) => {
+    if (value) localStorage.setItem(ONBOARD_KEY, "1");
+    else localStorage.removeItem(ONBOARD_KEY);
+    emit();
+  },
+
   finishOnboarding: () => {
     localStorage.setItem(ONBOARD_KEY, "1");
     emit();

@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import BottomNav from "@/components/BottomNav"; // seu menu
+import { BottomNav } from "@/components/BottomNav";
 
 export default function AppLayout() {
   return (

@@ -4,9 +4,14 @@ import { useNavigate } from "react-router-dom";
 
 /* ---------------- dados ---------------- */
 
-type Option = { id: string; label: string; sub?: string; icon: JSX.Element };
+type Option = {
+  id: string;
+  label: string;
+  sub?: string;
+  icon: React.ReactNode;
+};
 
-const I = (d: string, extra?: JSX.Element) => (
+const I = (d: string, extra?: React.ReactNode) => (
   <svg
     viewBox="0 0 24 24"
     className="h-7 w-7"
