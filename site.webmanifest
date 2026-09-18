@@ -1,19 +1,69 @@
 {
-  "name": "Ytu",
+  "id": "/",
+  "name": "Ytu — Guia de Recife",
   "short_name": "Ytu",
+  "description": "Rotas, eventos e lugares para viver Recife sem pressa.",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "theme_color": "#FFC300",
+  "background_color": "#FDF6EC",
+  "categories": ["travel", "lifestyle", "navigation"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home-mobile.png",
+      "sizes": "1179x2556",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Descubra rotas em Recife"
+    },
+    {
+      "src": "/screenshots/home-wide.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Ytu no desktop"
     }
   ],
-  "theme_color": "#002266",
-  "background_color": "#002266",
-  "display": "standalone"
+  "shortcuts": [
+    {
+      "name": "Rota da semana",
+      "short_name": "Rota",
+      "url": "/rotas/destaque"
+    },
+    { "name": "Eventos", "short_name": "Eventos", "url": "/eventos" },
+    { "name": "Perto de mim", "short_name": "Perto", "url": "/mapa" }
+  ]
 }

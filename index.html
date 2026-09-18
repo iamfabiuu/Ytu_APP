@@ -1,19 +1,87 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ytu</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+
+    <title>Ytu — Guia de Recife</title>
+    <meta
+      name="description"
+      content="Rotas, eventos e lugares para viver Recife sem pressa."
+    />
+    <link rel="canonical" href="https://ytu.app/" />
+
+    <!-- Ícones -->
     <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/favicon.svg" color="#FFC300" />
+
+    <!-- PWA -->
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="application-name" content="Ytu" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Ytu" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="theme-color"
+      content="#FFC300"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#111111"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Ytu" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content="Ytu — Guia de Recife" />
+    <meta
+      property="og:description"
+      content="Rotas, eventos e lugares para viver Recife sem pressa."
+    />
+    <meta property="og:url" content="https://ytu.app/" />
+    <meta property="og:image" content="https://ytu.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Performance -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <style>
+      html {
+        background: #fdf6ec;
+      }
+      html,
+      body,
+      #root {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        overscroll-behavior-y: none;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-font-smoothing: antialiased;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>Ative o JavaScript para usar o Ytu.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
