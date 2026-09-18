@@ -109,40 +109,53 @@ export function Home() {
       </header>
 
       <main className="mx-auto max-w-md space-y-8 px-4 pb-32 pt-5">
-        {/* Rota da semana */}
-        <Link
-          to="/place/recife-a-pe"
-          className="relative isolate flex min-h-[210px] flex-col justify-center overflow-hidden rounded-2xl bg-brand-blue p-5 text-white"
-        >
-          {/* teu pattern */}
-          <img
-            src="/image 59.svg" // ajuste o nome/caminho do teu asset
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute inset-0 -z-10 h-full w-full select-none object-cover opacity-[0.18]"
-          />
-          {/* fade pra legibilidade */}
-          <span
-            aria-hidden
-            className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-blue via-brand-blue/80 to-transparent"
-          />
+{/* Rota da semana */}
+<Link
+  to="/rotas/destaque"
+  aria-label="Rota da semana: Recife a pé e sem pressa — 4 paradas, 3h, grátis"
+  className="group relative isolate flex min-h-[210px] flex-col justify-center overflow-hidden rounded-2xl bg-brand-blue p-5 text-white shadow-lg shadow-brand-blue/20 transition active:scale-[0.98]"
+>
+  {/* pattern de fundo */}
+  <img
+    src="/image 59.svg"
+    alt=""
+    aria-hidden
+    className="pointer-events-none absolute inset-0 -z-10 size-full select-none object-cover opacity-[0.18]"
+  />
 
-          <span className="relative text-xs font-bold tracking-[0.2em] text-brand-yellow">
-            ROTA DA SEMANA
-          </span>
-          <h3 className="relative mt-2 max-w-[60%] text-3xl font-extrabold leading-tight">
-            Recife a pé e sem pressa
-          </h3>
-          <p className="relative mt-3 text-sm font-semibold">
-            4 Paradas | 3h | Grátis
-          </p>
-          <img
-            src="/Group 15.svg"
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute right-5 top-1/2 h-20 w-20 -translate-y-1/2 select-none object-contain drop-shadow"
-          />
-        </Link>
+  {/* fade pra legibilidade */}
+  <span
+    aria-hidden
+    className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-blue via-brand-blue/80 to-transparent"
+  />
+
+  <span className="relative text-xs font-bold tracking-[0.2em] text-brand-yellow">
+    ROTA DA SEMANA
+  </span>
+
+  <h3 className="relative mt-2 max-w-[60%] text-3xl font-extrabold leading-tight">
+    Recife a pé e sem pressa
+  </h3>
+
+  <p className="relative mt-3 flex items-center gap-2 text-sm font-semibold text-white/85">
+    4 paradas <span className="text-white/35">•</span> 3h
+    <span className="text-white/35">•</span>
+    <span className="text-brand-yellow">Grátis</span>
+  </p>
+
+  <span className="relative mt-4 flex w-fit items-center gap-1.5 rounded-full bg-brand-yellow px-4 py-2 text-xs font-extrabold text-brand-blue">
+    Iniciar rota
+    <ChevronRight className="size-3.5 transition group-active:translate-x-0.5" />
+  </span>
+
+  <img
+    src="/Group 15.svg"
+    alt=""
+    aria-hidden
+    className="pointer-events-none absolute right-5 top-1/2 size-20 -translate-y-1/2 select-none object-contain drop-shadow"
+  />
+</Link>
+
 
         {/* Lugares */}
         <section>
