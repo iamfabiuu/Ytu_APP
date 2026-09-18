@@ -13,6 +13,7 @@ import Cadastro from "./pages/Cadastro";
 import Onboarding from "./pages/Onboarding";
 import Personalizacao from "./pages/Personalizacao";
 import { RouteDetail } from "./pages/RouteDetail";
+import { WeeklyRouteDetail } from ".pages/WeeklyRouteDetail";
 import { useAuth } from "./layouts/lib/useAuth";
 import {
   GuestOnly,
@@ -65,6 +66,7 @@ export default function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/place/:id" element={<PlaceDetail />} />
               <Route path="/rotas/:id" element={<RouteDetail />} />
+              <Route path="/rotas/destaque" element={<WeeklyRouteDetail />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
