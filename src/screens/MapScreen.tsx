@@ -10,7 +10,6 @@ import {
 import { RealMap, type MapHandle } from "../components/RealMap";
 import { PLACES, type Place } from "../data/places";
 
-
 const CATS = [
   "Tudo",
   "Cultura",
@@ -40,19 +39,6 @@ export function MapScreen() {
       c === "Tudo" ? PLACES : PLACES.filter((p: Place) => p.cat === c);
     setSelected((s) => (s && next.some((p: Place) => p.id === s) ? s : null));
   }, []);
-
-  const zoomIn = useCallback(() => mapRef.current?.zoomIn(), []);
-  const zoomOut = useCallback(() => mapRef.current?.zoomOut(), []);
-  const locate = useCallback(() => mapRef.current?.locate(), []);
-
-  const controls = useMemo(
-    () => [
-      { Icon: Plus, label: "Aproximar", action: zoomIn },
-      { Icon: Minus, label: "Afastar", action: zoomOut },
-      { Icon: Crosshair, label: "Minha localização", action: locate },
-    ],
-    [locate, zoomIn, zoomOut],
-  );
 
   return (
     <div className="relative h-[100dvh] overflow-hidden bg-sand">
@@ -92,10 +78,11 @@ export function MapScreen() {
                 type="button"
                 onClick={() => selectCat(c)}
                 aria-pressed={cat === c}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold shadow-md shadow-black/5 transition active:scale-95 ${cat === c
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold shadow-md shadow-black/5 transition active:scale-95 ${
+                  cat === c
                     ? "bg-navy text-white"
                     : "bg-white/95 text-navy backdrop-blur"
-                  }`}
+                }`}
               >
                 {c}
               </button>
@@ -106,17 +93,30 @@ export function MapScreen() {
 
       {/* ---------- controles laterais ---------- */}
       <div className="absolute right-4 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-2">
-        {controls.map(({ Icon, label, action }) => (
-          <button
-            key={label}
-            type="button"
-            aria-label={label}
-            onClick={action}
-            className="grid size-11 place-items-center rounded-full bg-white/95 text-navy shadow-lg shadow-black/10 backdrop-blur transition active:scale-90"
-          >
-            <Icon className="size-5" strokeWidth={2.5} />
-          </button>
-        ))}
+        <button
+          type="button"
+          aria-label="Aproximar"
+          onClick={() => mapRef.current?.zoomIn()}
+          className="grid size-11 place-items-center rounded-full bg-white/95 text-navy shadow-lg shadow-black/10 backdrop-blur transition active:scale-90"
+        >
+          <Plus className="size-5" strokeWidth={2.5} />
+        </button>
+        <button
+          type="button"
+          aria-label="Afastar"
+          onClick={() => mapRef.current?.zoomOut()}
+          className="grid size-11 place-items-center rounded-full bg-white/95 text-navy shadow-lg shadow-black/10 backdrop-blur transition active:scale-90"
+        >
+          <Minus className="size-5" strokeWidth={2.5} />
+        </button>
+        <button
+          type="button"
+          aria-label="Minha localização"
+          onClick={() => mapRef.current?.locate()}
+          className="grid size-11 place-items-center rounded-full bg-white/95 text-navy shadow-lg shadow-black/10 backdrop-blur transition active:scale-90"
+        >
+          <Crosshair className="size-5" strokeWidth={2.5} />
+        </button>
       </div>
 
       {/* ---------- estado vazio do filtro ---------- */}
@@ -130,8 +130,9 @@ export function MapScreen() {
 
       {/* ---------- atribuição obrigatória ---------- */}
       <p
-        className={`absolute left-4 z-20 text-[9px] font-medium text-ink/50 transition-all duration-300 ${place ? "bottom-[160px]" : "bottom-24"
-          }`}
+        className={`absolute left-4 z-20 text-[9px] font-medium text-ink/50 transition-all duration-300 ${
+          place ? "bottom-[160px]" : "bottom-24"
+        }`}
       >
         © MapTiler © OpenStreetMap
       </p>

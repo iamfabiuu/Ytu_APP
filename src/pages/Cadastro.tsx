@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
 import { fakeAuth } from "../layouts/lib/fakeAuth";
 import logo from "/logo.svg";
@@ -8,6 +8,7 @@ import googleIcon from "/icons/google.svg";
 import appleIcon from "/icons/apple.svg";
 
 export default function Cadastro() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     nome: "",
     email: "",
@@ -19,21 +20,20 @@ export default function Cadastro() {
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  // loga como usuário NOVO (onboarded = false) -> GuestOnly manda pro /onboarding
-  const signup = (nome?: string, email?: string) => {
-    fakeAuth.login({
+  // registra como usuário novo; o guard encaminha para o onboarding
+  const signup = async (nome?: string, email?: string) => {
+    await fakeAuth.register({
       name: nome || "Convidado",
       email: email || "convidado@exemplo.com",
     });
-    fakeAuth.setOnboarded?.(false);
-    window.dispatchEvent(new Event("auth:change"));
+    navigate("/onboarding", { replace: true });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (form.senha !== form.confirmar) return alert("As senhas não conferem");
     if (!aceito) return alert("Aceite os termos para continuar");
-    signup(form.nome, form.email);
+    await signup(form.nome, form.email);
   };
 
   return (

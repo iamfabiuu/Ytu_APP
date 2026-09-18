@@ -1,6 +1,7 @@
 // src/pages/Personalizacao.tsx
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { fakeAuth } from "../layouts/lib/fakeAuth";
 
 /* ---------------- dados ---------------- */
 
@@ -181,6 +182,7 @@ export default function Personalizacao() {
     } catch {
       /* ignore */
     }
+    fakeAuth.finishOnboarding();
     navigate("/", { replace: true });
   }, [interests, company, budget, navigate]);
 
