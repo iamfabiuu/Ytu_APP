@@ -58,7 +58,33 @@ export const MERCADO_BOA_VISTA: PlaceDetail = {
   address: { line1: "Rua Conde de Irajá, s/n", line2: "Boa Vista, Recife/PE" },
 };
 
+export const PACO_DO_FREVO: PlaceDetail = {
+  id: "passo-do-frevo",
+  name: "Paço do Frevo",
+  cover: "/paco-do-frevo.jpg",
+  tags: ["CULTURA • MUSEU", "MÚSICA E DANÇA"],
+  badge: "Patrimônio Imaterial",
+  rating: 4.9,
+  reviews: 1_083,
+  distance: "850 m",
+  description:
+    "Casarão do século XIX dedicado ao frevo: acervo interativo, sala de dança, estúdios de música e aulas abertas. Impossível sair sem mexer o passo.",
+  hours: { value: "Ter a sex 9h às 17h", note: "Sáb e dom 11h às 17h • Fecha às segundas" },
+  ticket: { value: "R$ 10", note: "Meia R$ 5 • Grátis às terças" },
+  accessibility: {
+    title: "Totalmente acessível",
+    features: ["Elevador", "Rampas", "Piso tátil", "Banheiro adaptado"],
+  },
+  address: {
+    line1: "Praça do Arsenal da Marinha, s/n",
+    line2: "Bairro do Recife, Recife/PE",
+  },
+};
+
+
 export const PLACE_DETAILS: Record<string, PlaceDetail> = {
+  [PACO_DO_FREVO.id]: PACO_DO_FREVO,
   [CAIS_DO_SERTAO.id]: CAIS_DO_SERTAO,
   [MERCADO_BOA_VISTA.id]: MERCADO_BOA_VISTA,
 };
+

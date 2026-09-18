@@ -7,7 +7,7 @@ const CHIPS = ["Cultura", "Música", "História", "Culinária"];
 const PLACES = [
   {
     id: "passo-do-frevo",
-    name: "Passo do Frevo",
+    name: "Paço do Frevo",
     info: "850 M • Grátis às terças",
     img: "/paco-do-frevo.jpg",
   },
@@ -164,7 +164,7 @@ export function Home() {
           <ul className="space-y-3">
             {PLACES.map((p) => (
               <li key={p.id}>
-<Link to={`/${p.id}`}
+<Link to={`/lugar/${p.id}`}
                   className="flex items-center gap-3 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5"
                 >
                   <img
