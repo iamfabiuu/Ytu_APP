@@ -1,5 +1,6 @@
 // src/pages/Home.tsx
 import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 
 const CHIPS = ["Cultura", "Música", "História", "Culinária"];
 

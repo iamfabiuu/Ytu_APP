@@ -13,7 +13,7 @@ import Cadastro from "./pages/Cadastro";
 import Onboarding from "./pages/Onboarding";
 import Personalizacao from "./pages/Personalizacao";
 import { RouteDetail } from "./pages/RouteDetail";
-import { WeeklyRouteDetail } from ".pages/WeeklyRouteDetail";
+import { WeeklyRouteDetail } from "./pages/WeeklyRouteDetail";
 import { useAuth } from "./layouts/lib/useAuth";
 import {
   GuestOnly,

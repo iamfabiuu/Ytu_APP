@@ -14,6 +14,8 @@ export type Route = {
   price: string;
   img: string;
   segments?: RouteSegment[];
+    featured?: boolean;
+  distance?: string;
 };
 
 export const ROUTES: Route[] = [
