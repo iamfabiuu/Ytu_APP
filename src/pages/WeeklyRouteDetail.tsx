@@ -76,8 +76,7 @@ export function WeeklyRouteDetail() {
     /* mapa */
     useEffect(() => {
         if (!route) return;
-        mapRef.current?.showRoute(route.stops, Math.max(0, journey.checkpoint), route.segments);
-        return () => mapRef.current?.clearRoute();
+        mapRef.current?.showRoute(route.stops, Math.max(0, journey.checkpoint)); return () => mapRef.current?.clearRoute();
     }, [route, journey.checkpoint]);
 
     /* ações */

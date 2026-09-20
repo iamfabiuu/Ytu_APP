@@ -7,6 +7,8 @@ export type Route = {
   stops: string[];
   price: string;
   img: string;
+  featured?: boolean;
+  distance?: string;
 };
 
 export const ROUTES: Route[] = [
