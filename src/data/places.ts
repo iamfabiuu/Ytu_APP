@@ -24,8 +24,8 @@ export const PLACES: Place[] = [
     cat: "Patrimônio",
     dist: "1,4 km",
     hours: "Aberto 24h",
-    lng: -34.8712,
-    lat: -8.0632,
+    lng: -34.871204253745965,
+    lat: -8.063084808406737,
   },
   {
     id: "boaviagem",
@@ -69,7 +69,7 @@ export const PLACES: Place[] = [
     cat: "Cultura",
     dist: "2,0 km",
     hours: "Aberto até 16h",
-    lng: -34.872928,
-    lat: -8.065988,
+    lng: -34.86997525733125,
+    lat: -8.06028020251848,
   },
 ];

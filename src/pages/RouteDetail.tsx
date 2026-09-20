@@ -32,7 +32,6 @@ export function RouteDetail() {
         mapRef.current?.showRoute(
             route.stops,
             currentCheckpoint,
-            route.segments,
         );
 
         return () => {

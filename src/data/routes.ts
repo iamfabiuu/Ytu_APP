@@ -1,9 +1,3 @@
-export type RouteSegment = {
-  from: string;
-  to: string;
-  via?: [number, number][];
-};
-
 export type Route = {
   id: string;
   title: string;
@@ -13,9 +7,6 @@ export type Route = {
   stops: string[];
   price: string;
   img: string;
-  segments?: RouteSegment[];
-    featured?: boolean;
-  distance?: string;
 };
 
 export const ROUTES: Route[] = [
@@ -28,16 +19,5 @@ export const ROUTES: Route[] = [
     stops: ["marcozero", "frevo", "cais-sertao", "casa-cultura"],
     price: "Até R$15,00",
     img: "/paco-do-frevo.jpg",
-
-    segments: [
-      {
-        from: "marcozero",
-        to: "frevo",
-        via: [
-          [-34.87155, -8.06265],
-          [-34.87155, -8.06210],
-        ],
-      },
-    ],
   },
 ];
