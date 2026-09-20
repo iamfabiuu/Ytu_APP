@@ -7,6 +7,8 @@ import {
 import { ROUTES } from "../data/routes";
 import { PLACES, type Place } from "../data/places";
 import { RealMap, type MapHandle } from "../components/RealMap";
+import { TravelModeToggle } from "../components/TravelModeToggle";
+import type { TravelMode } from "../lib/travelMode";
 
 type Status = "idle" | "active" | "done";
 
@@ -35,6 +37,9 @@ export function WeeklyRouteDetail() {
 
     const [journey, setJourney] = useState<Journey>(INITIAL);
     const [confirming, setConfirming] = useState<number | null>(null);
+
+    // Como a pessoa vai fazer o percurso: a pé ou de bicicleta.
+    const [mode, setMode] = useState<TravelMode>("foot");
 
     useEffect(() => {
         try {
@@ -76,8 +81,8 @@ export function WeeklyRouteDetail() {
     /* mapa */
     useEffect(() => {
         if (!route) return;
-        mapRef.current?.showRoute(route.stops, Math.max(0, journey.checkpoint)); return () => mapRef.current?.clearRoute();
-    }, [route, journey.checkpoint]);
+        mapRef.current?.showRoute(route.stops, Math.max(0, journey.checkpoint), mode); return () => mapRef.current?.clearRoute();
+    }, [route, journey.checkpoint, mode]);
 
     /* ações */
     const start = useCallback(() => {
@@ -231,6 +236,14 @@ export function WeeklyRouteDetail() {
 
             {/* ---------- MAPA ---------- */}
             <div className={`px-5 ${isIdle ? "-mt-11 relative z-10" : "pt-5"}`}>
+                {/* ESCOLHA DO PERCURSO: a pé ou de bicicleta */}
+                <TravelModeToggle
+                    value={mode}
+                    onChange={setMode}
+                    stopIds={route.stops}
+                    className="mb-3"
+                />
+
                 <div className="overflow-hidden rounded-3xl bg-white shadow-lg shadow-[#1D3FA8]/10">
                     <div className="relative h-[240px] w-full">
                         <RealMap ref={mapRef} places={stops} selected={null} onSelect={() => { }} />

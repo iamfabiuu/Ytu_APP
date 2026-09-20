@@ -20,6 +20,7 @@ import {
   type MarkerMap,
 } from "../map/markers";
 import { createRouteController } from "../map/route";
+import { DEFAULT_MODE, type TravelMode } from "../lib/travelMode";
 
 const RECIFE: [number, number] = [-34.8811, -8.0631];
 
@@ -37,6 +38,7 @@ export type MapHandle = {
   showRoute: (
     ids: string[],
     currentCheckpoint?: number,
+    mode?: TravelMode,
   ) => void;
 
   clearRoute: () => void;
@@ -52,6 +54,7 @@ type PendingRoute = {
   ids: string[];
   currentCheckpoint: number;
   fitRoute: boolean;
+  mode: TravelMode;
 };
 
 /*
@@ -78,6 +81,9 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
   const pendingRouteRef = useRef<PendingRoute | null>(null);
 
   const routeInitializedRef = useRef(false);
+
+  /* último modo desenhado: se mudar, a câmera reenquadra a rota nova */
+  const lastModeRef = useRef<TravelMode | null>(null);
 
   /* um controlador de rota por mapa (guarda a versão anti-corrida) */
   const [routes] = useState(createRouteController);
@@ -108,6 +114,7 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
     ids: string[],
     currentCheckpoint = 0,
     fitRoute = false,
+    mode: TravelMode = DEFAULT_MODE,
   ) => {
     const map = mapRef.current;
 
@@ -115,7 +122,14 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
       return Promise.resolve();
     }
 
-    return routes.draw({ map, places, ids, currentCheckpoint, fitRoute });
+    return routes.draw({
+      map,
+      places,
+      ids,
+      currentCheckpoint,
+      fitRoute,
+      mode,
+    });
   };
 
   const clearRoute = () => {
@@ -150,6 +164,7 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
     });
 
     mapRef.current = map;
+
 
     map.on("styleimagemissing", (e) => {
       if (!map.hasImage(e.id)) {
@@ -194,6 +209,7 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
       meRef.current = null;
 
       routeInitializedRef.current = false;
+      lastModeRef.current = null;
 
       setReady(false);
 
@@ -222,6 +238,7 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
       pending.ids,
       pending.currentCheckpoint,
       pending.fitRoute,
+      pending.mode,
     );
   }, [ready]);
 
@@ -321,15 +338,21 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
         }
       },
 
-      showRoute: (ids, currentCheckpoint = 0) => {
+      showRoute: (ids, currentCheckpoint = 0, mode = DEFAULT_MODE) => {
         setRouteKey(ids.join(","));
 
         const isNewRoute = !routeInitializedRef.current;
 
+        /* rota nova OU troca de modo (a pé ↔ bike): enquadra a câmera */
+        const fitRoute = isNewRoute || lastModeRef.current !== mode;
+
+        lastModeRef.current = mode;
+
         pendingRouteRef.current = {
           ids,
           currentCheckpoint,
-          fitRoute: isNewRoute,
+          fitRoute,
+          mode,
         };
 
         routeInitializedRef.current = true;
@@ -340,7 +363,8 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
           void drawRoute(
             ids,
             currentCheckpoint,
-            isNewRoute,
+            fitRoute,
+            mode,
           );
         }
       },

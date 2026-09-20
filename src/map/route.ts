@@ -5,17 +5,10 @@
  * linhas das rotas, utilizando as geometrias salvas e,
  * quando necessário, o serviço de roteamento.
  */
-
-/*
- * Lógica das rotas do mapa.
- *
- * Responsável por calcular, montar, exibir e remover as
- * linhas das rotas, utilizando as geometrias salvas e,
- * quando necessário, o serviço de roteamento.
- */
 import type { Map as MTMap } from "@maptiler/sdk";
 import type { Place } from "../data/places";
 import { getSegmentGeometry, type LngLat } from "../lib/segmentGeometry";
+import { DEFAULT_MODE, type TravelMode } from "../lib/travelMode";
 
 /* ---------- constantes ---------- */
 
@@ -68,6 +61,8 @@ export type DrawRouteOptions = {
   currentCheckpoint: number;
   /* se deve enquadrar a câmera na rota inteira */
   fitRoute: boolean;
+  /* a pé (padrão) ou bicicleta */
+  mode?: TravelMode;
 };
 
 export type RouteController = {
@@ -280,6 +275,7 @@ export function createRouteController(): RouteController {
     ids,
     currentCheckpoint,
     fitRoute,
+    mode = DEFAULT_MODE,
   }: DrawRouteOptions) => {
     if (ids.length < 2) {
       return;
@@ -309,11 +305,26 @@ export function createRouteController(): RouteController {
         const from = points[i];
         const to = points[i + 1];
 
-        const stored = getSegmentGeometry(from.id, to.id);
+        const stored = getSegmentGeometry(from.id, to.id, mode);
 
         if (stored) {
           segments.push(stored);
           continue;
+        }
+
+        /*
+         * Sem geometria salva, só a pé tem reserva (OSRM). Para os outros
+         * modos NÃO inventamos: o servidor público ignora o perfil e
+         * devolveria um caminho de carro. Apaga o desenho anterior para
+         * não deixar na tela uma linha de outro modo.
+         */
+        if (mode !== DEFAULT_MODE) {
+          console.warn(
+            `⚠️ Sem geometria de "${mode}" para o trecho ${from.id} → ${to.id}. ` +
+              `Rode: npx tsx scripts/generate-segments.ts --mode=${mode}`,
+          );
+          removeRouteVisuals(map);
+          return;
         }
 
         let coordinates: LngLat[];

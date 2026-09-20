@@ -4,6 +4,8 @@ import { ChevronLeft, MapPin, Check } from "lucide-react";
 import { ROUTES } from "../data/routes";
 import { PLACES, type Place } from "../data/places";
 import { RealMap, type MapHandle } from "../components/RealMap";
+import { TravelModeToggle } from "../components/TravelModeToggle";
+import type { TravelMode } from "../lib/travelMode";
 
 export function RouteDetail() {
     const { id } = useParams();
@@ -11,6 +13,9 @@ export function RouteDetail() {
     const mapRef = useRef<MapHandle>(null);
 
     const [currentCheckpoint, setCurrentCheckpoint] = useState(1);
+
+    // Como a pessoa vai fazer o percurso: a pé ou de bicicleta.
+    const [mode, setMode] = useState<TravelMode>("foot");
 
     const route = ROUTES.find((r) => r.id === id);
 
@@ -32,12 +37,13 @@ export function RouteDetail() {
         mapRef.current?.showRoute(
             route.stops,
             currentCheckpoint,
+            mode,
         );
 
         return () => {
             mapRef.current?.clearRoute();
         };
-    }, [route, currentCheckpoint]);
+    }, [route, currentCheckpoint, mode]);
 
     if (!route) {
         return (
@@ -237,6 +243,14 @@ export function RouteDetail() {
 
             {/* MAPA DA ROTA */}
             <div className="px-5 pt-2">
+                {/* ESCOLHA DO PERCURSO: a pé ou de bicicleta */}
+                <TravelModeToggle
+                    value={mode}
+                    onChange={setMode}
+                    stopIds={route.stops}
+                    className="mb-3"
+                />
+
                 <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
                     <div className="relative h-[420px] w-full">
                         <RealMap
@@ -268,4 +282,3 @@ export function RouteDetail() {
         </section>
     );
 }
-

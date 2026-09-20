@@ -1,15 +1,20 @@
 /**
- * Geometrias curadas dos trechos das rotas do YTU.
+ * Geometrias curadas dos trechos das rotas do YTU, por modo de deslocamento.
  *
- * Fonte única: src/data/segmentGeometries.json (GeoJSON FeatureCollection,
- * uma LineString por trecho). Cada Feature tem `properties.id` no formato
- * "idOrigem:idDestino", usando os ids de src/data/places.ts.
+ * Um arquivo GeoJSON (FeatureCollection) por modo:
+ *   - foot → src/data/segmentGeometries.json        (a pé)
+ *   - bike → src/data/segmentGeometries.bike.json   (bicicleta)
  *
- * Esse arquivo é gerado por scripts/generate-segments.ts e pode ser
- * ajustado à mão (por exemplo no geojson.io), desde que `properties.id`
+ * Em cada arquivo, cada Feature é uma LineString com `properties.id` no
+ * formato "idOrigem:idDestino", usando os ids de src/data/places.ts.
+ *
+ * Os arquivos são gerados por scripts/generate-segments.ts e podem ser
+ * ajustados à mão (por exemplo no geojson.io), desde que `properties.id`
  * seja mantido.
  */
-import data from "../data/segmentGeometries.json";
+import footData from "../data/segmentGeometries.json";
+import bikeData from "../data/segmentGeometries.bike.json";
+import { DEFAULT_MODE, SPEED_KMH, type TravelMode } from "./travelMode";
 
 export type LngLat = [number, number];
 
@@ -24,36 +29,117 @@ type SegmentCollection = {
   features: SegmentFeature[];
 };
 
-const collection = data as unknown as SegmentCollection;
+function buildIndex(data: unknown): Map<string, LngLat[]> {
+  const collection = data as SegmentCollection;
 
-const BY_ID = new Map<string, LngLat[]>(
-  collection.features.map((feature) => [
-    feature.properties.id,
-    feature.geometry.coordinates,
-  ]),
-);
+  return new Map(
+    collection.features.map((feature) => [
+      feature.properties.id,
+      feature.geometry.coordinates,
+    ]),
+  );
+}
 
-/*
- * Utilitário para obter a geometria de um segmento de rota.
+const INDEX: Record<TravelMode, Map<string, LngLat[]>> = {
+  foot: buildIndex(footData),
+  bike: buildIndex(bikeData),
+};
+
+/**
+ * Devolve a polilinha curada do trecho `fromId → toId` no modo pedido, ou
+ * `null` se não existir (nesse caso quem chamou decide o que fazer).
  *
- * Busca os trechos salvos no arquivo de geometrias e retorna
- * as coordenadas no sentido correto entre dois pontos.
+ * Só a pé, se existir apenas o trecho no sentido contrário, ele é devolvido
+ * invertido. Para bicicleta isso NÃO é feito: o sentido contrário pode
+ * ser mão única.
  */
 export function getSegmentGeometry(
   fromId: string,
   toId: string,
+  mode: TravelMode = DEFAULT_MODE,
 ): LngLat[] | null {
-  const forward = BY_ID.get(`${fromId}:${toId}`);
+  const index = INDEX[mode];
+
+  const forward = index.get(`${fromId}:${toId}`);
 
   if (forward && forward.length >= 2) {
     return forward;
   }
 
-  const backward = BY_ID.get(`${toId}:${fromId}`);
+  if (mode === "foot") {
+    const backward = index.get(`${toId}:${fromId}`);
 
-  if (backward && backward.length >= 2) {
-    return [...backward].reverse();
+    if (backward && backward.length >= 2) {
+      return [...backward].reverse();
+    }
   }
 
   return null;
+}
+
+/* Comprimento de uma polilinha, em metros. */
+function pathLength(coordinates: LngLat[]): number {
+  const R = 6371000;
+  const rad = Math.PI / 180;
+
+  let total = 0;
+
+  for (let i = 1; i < coordinates.length; i++) {
+    const [lng1, lat1] = coordinates[i - 1];
+    const [lng2, lat2] = coordinates[i];
+
+    const dLat = (lat2 - lat1) * rad;
+    const dLng = (lng2 - lng1) * rad;
+
+    const h =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLng / 2) ** 2;
+
+    total += 2 * R * Math.asin(Math.sqrt(h));
+  }
+
+  return total;
+}
+
+export type RouteStats = {
+  distanceMeters: number;
+  /* estimativa só do deslocamento (ver SPEED_KMH em travelMode.ts) */
+  durationMinutes: number;
+};
+
+/*
+ * Distância e tempo estimado de uma rota no modo pedido.
+ * Devolve `null` se algum trecho não tiver geometria salva nesse modo.
+ */
+export function getRouteStats(
+  stopIds: string[],
+  mode: TravelMode = DEFAULT_MODE,
+): RouteStats | null {
+  if (stopIds.length < 2) {
+    return null;
+  }
+
+  let distanceMeters = 0;
+
+  for (let i = 0; i < stopIds.length - 1; i++) {
+    const segment = getSegmentGeometry(stopIds[i], stopIds[i + 1], mode);
+
+    if (!segment) {
+      return null;
+    }
+
+    distanceMeters += pathLength(segment);
+  }
+
+  const hours = distanceMeters / 1000 / SPEED_KMH[mode];
+
+  return {
+    distanceMeters,
+    durationMinutes: Math.max(1, Math.round(hours * 60)),
+  };
+}
+
+/* A rota inteira tem geometria salva neste modo? */
+export function hasModeGeometry(stopIds: string[], mode: TravelMode): boolean {
+  return getRouteStats(stopIds, mode) !== null;
 }
