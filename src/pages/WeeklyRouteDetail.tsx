@@ -423,12 +423,12 @@ export function WeeklyRouteDetail() {
                         >
                             <RotateCcw className="size-5" />
                         </button>
-                        <button
-                            onClick={() => nav(`/rotas/${route.id}/conquista`)}
-                            className="flex h-14 flex-1 items-center justify-center gap-2 rounded-2xl bg-[#1D3FA8] text-[17px] font-bold text-white shadow-lg active:scale-[0.98]"
-                        >
-                            <Trophy className="size-5" /> Ver conquista
-                        </button>
+<button
+    onClick={() => nav("/conquistas")}
+    className="flex h-14 flex-1 items-center justify-center gap-2 rounded-2xl bg-[#1D3FA8] text-[17px] font-bold text-white shadow-lg active:scale-[0.98]"
+>
+    <Trophy className="size-5" /> Ver conquistas
+</button>
                     </div>
                 )}
             </div>
