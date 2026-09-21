@@ -21,6 +21,7 @@ import {
 } from "../map/markers";
 import { createRouteController } from "../map/route";
 import { DEFAULT_MODE, type TravelMode } from "../lib/travelMode";
+import { addBoats, removeBoats } from "../map/boatLayers";
 
 const RECIFE: [number, number] = [-34.8811, -8.0631];
 
@@ -165,6 +166,16 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
 
     mapRef.current = map;
 
+    if (import.meta.env.DEV) {
+      map.on("click", (e) => {
+        const layers = map.queryRenderedFeatures(e.point).map((f) => f.layer.id);
+        const naAgua = layers.includes("Water");
+        console.log(
+          `📍 [${e.lngLat.lng.toFixed(6)}, ${e.lngLat.lat.toFixed(6)}] ${naAgua ? "🌊 água" : "⚠️ não é água"}`,
+        );
+      });
+    }
+
 
     map.on("styleimagemissing", (e) => {
       if (!map.hasImage(e.id)) {
@@ -182,6 +193,8 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
 
       /* Marco Zero como geometria real do mapa (não é Marker HTML) */
       addLandmarks(map);
+
+      addBoats(map);
 
       map.resize();
       setReady(true);
@@ -203,6 +216,7 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
       routes.clear(map);
 
       removeLandmarks(map);
+      removeBoats(map);
 
       mapRef.current = null;
       markersRef.current = {};
@@ -376,7 +390,7 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
     [places, ready],
   );
 
-return (
+  return (
     <div
       ref={containerRef}
       className="absolute inset-0 z-0"
