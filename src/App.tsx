@@ -18,7 +18,7 @@ import { useAuth } from "./layouts/lib/useAuth";
 import { PlaceRoute } from "./pages/PlaceRoute";
 import { CaisDoSertao } from "./pages/CaisDoSertao";
 import { MercadoBoaVista } from "./pages/MercadoBoaVista";
-import { Conquistas } from "./pages/Conquistas";
+import Conquistas from "./pages/Conquistas";
 import {
   GuestOnly,
   RequireAuth,
