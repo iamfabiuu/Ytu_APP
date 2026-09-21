@@ -376,10 +376,11 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
     [places, ready],
   );
 
-  return (
+return (
     <div
       ref={containerRef}
       className="absolute inset-0 z-0"
+      style={{ position: "absolute", inset: 0, zIndex: 0 }}
     />
   );
 });
