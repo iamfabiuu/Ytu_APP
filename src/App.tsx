@@ -18,6 +18,7 @@ import { useAuth } from "./layouts/lib/useAuth";
 import { PlaceRoute } from "./pages/PlaceRoute";
 import { CaisDoSertao } from "./pages/CaisDoSertao";
 import { MercadoBoaVista } from "./pages/MercadoBoaVista";
+import { Conquistas } from "./pages/Conquistas";
 import {
   GuestOnly,
   RequireAuth,
@@ -73,6 +74,7 @@ export default function App() {
               <Route path="/lugar/cais-do-sertao" element={<CaisDoSertao />} />
               <Route path="/lugar/mercado-da-boa-vista" element={<MercadoBoaVista />} />
               <Route path="/lugar/:id" element={<PlaceRoute />} />
+              <Route path="/conquistas" element={<Conquistas />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
