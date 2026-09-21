@@ -6,6 +6,20 @@ const STATS = [
   { value: 12, label: "Posts\ncompartilhados" },
 ];
 
+const ACH_SUMMARY = {
+  level: 3,
+  title: "Explorador do Recife",
+  xp: 420,
+  nextXp: 600,
+  locked: 4,
+  badges: [
+    { icon: "👣", name: "Primeiro Passo" },
+    { icon: "🎭", name: "Passista" },
+    { icon: "🍲", name: "Caldinho Lover" },
+    { icon: "🗺️", name: "Explorador" },
+  ],
+};
+
 const ACTIVITY = [
   {
     id: "1",
@@ -138,6 +152,68 @@ export function Profile() {
             </li>
           ))}
         </ul>
+      </div>
+
+            {/* RESUMO DE CONQUISTAS */}
+      <div className="relative z-10 mt-8 px-4">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-[15px] font-extrabold text-ink">Conquistas</h2>
+          <Link
+            to="/conquistas"
+            className="text-[12px] font-bold text-[#1D4ED8] active:scale-95"
+          >
+            Ver todas →
+          </Link>
+        </div>
+
+        <Link
+          to="/conquistas"
+          className="block rounded-3xl bg-white p-4 shadow-md ring-1 ring-[#1D4ED8]/10 transition active:scale-[0.98] hover:ring-[#1D4ED8]/30"
+        >
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-[11px] font-bold tracking-widest text-[#F59E0B]">
+                NÍVEL {ACH_SUMMARY.level}
+              </p>
+              <p className="text-[15px] font-extrabold text-ink">
+                {ACH_SUMMARY.title}
+              </p>
+            </div>
+            <p className="text-[11px] font-semibold text-ink/50">
+              {ACH_SUMMARY.xp}/{ACH_SUMMARY.nextXp} XP
+            </p>
+          </div>
+
+          <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-ink/10">
+            <div
+              className="h-full rounded-full bg-[#1D4ED8] transition-all"
+              style={{
+                width: `${Math.min(100, (ACH_SUMMARY.xp / ACH_SUMMARY.nextXp) * 100)}%`,
+              }}
+            />
+          </div>
+
+          <div className="mt-4 flex items-center gap-2 border-t border-ink/10 pt-4">
+            {ACH_SUMMARY.badges.map((b, i) => (
+              <span
+                key={i}
+                className="flex size-11 items-center justify-center rounded-xl bg-[#FFF3D1] text-xl"
+                title={b.name}
+              >
+                {b.icon}
+              </span>
+            ))}
+            <span className="flex size-11 items-center justify-center rounded-xl bg-ink/5 text-xs font-extrabold text-ink/40">
+              +{ACH_SUMMARY.locked}
+            </span>
+            <p className="ml-auto text-right text-[11px] font-semibold leading-tight text-ink/50">
+              {ACH_SUMMARY.badges.length} de{" "}
+              {ACH_SUMMARY.badges.length + ACH_SUMMARY.locked}
+              <br />
+              desbloqueadas
+            </p>
+          </div>
+        </Link>
       </div>
 
       {/* SAIR */}
