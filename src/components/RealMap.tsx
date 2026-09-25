@@ -16,6 +16,7 @@ import {
   placesOnRoute,
   removeMarkers,
   renderPlaceMarkers,
+  setMarkerLabels,
   showUserLocation,
   type MarkerMap,
 } from "../map/markers";
@@ -29,6 +30,17 @@ const KEY = import.meta.env.VITE_MAPTILER_KEY as string;
 config.apiKey = KEY;
 
 const STYLE_URL = `https://api.maptiler.com/maps/streets-v2/style.json?key=${KEY}`;
+
+/*
+ * A partir deste zoom, os nomes dos lugares ficam visíveis.
+ *
+ * Abaixo de 14:
+ *   somente os pins.
+ *
+ * A partir de 14:
+ *   pins + nomes.
+ */
+const LABEL_ZOOM = 14;
 
 export type MapHandle = {
   zoomIn: () => void;
@@ -61,11 +73,20 @@ type PendingRoute = {
 /*
  * RealMap é o orquestrador: cria o mapa, guarda o estado do React e
  * chama os módulos de src/map/ (landmarks, markers, route).
- * Regra: o que precisa de hook fica aqui; o que só precisa da
- * instância do mapa mora em src/map/.
  *
- * Pinos: com uma rota em exibição (showRoute), só as paradas dela
- * ganham pino. Sem rota, todos os `places` recebidos ganham pino.
+ * Regra das rotas:
+ *
+ * - Quando o usuário inicia uma rota, ela fica registrada em
+ *   activeRouteRef.
+ * - Selecionar uma parada da rota NÃO encerra essa rota.
+ * - O mapa pode voar até a parada normalmente.
+ * - Depois que a seleção muda, a rota ativa é redesenhada sem
+ *   reenquadrar a câmera.
+ * - Só clearRoute() realmente encerra a rota.
+ *
+ * Pinos:
+ * - sem rota: todos os lugares recebidos ganham pino;
+ * - com rota: somente as paradas da rota ganham pino.
  */
 export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
   { selected, onSelect, places = PLACES },
@@ -81,27 +102,41 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
 
   const pendingRouteRef = useRef<PendingRoute | null>(null);
 
+  /*
+   * Guarda a rota atualmente ativa.
+   *
+   * Isso é diferente de routeKey:
+   * routeKey controla quais pinos aparecem;
+   * activeRouteRef garante que a rota continue desenhada
+   * mesmo quando selected muda.
+   */
+  const activeRouteRef = useRef<PendingRoute | null>(null);
+
   const routeInitializedRef = useRef(false);
 
-  /* último modo desenhado: se mudar, a câmera reenquadra a rota nova */
+  /* último modo desenhado */
   const lastModeRef = useRef<TravelMode | null>(null);
 
-  /* um controlador de rota por mapa (guarda a versão anti-corrida) */
+  /* um controlador de rota por mapa */
   const [routes] = useState(createRouteController);
 
   const [ready, setReady] = useState(false);
 
   /*
-   * Ids das paradas da rota em exibição, juntos numa string
-   * (null = nenhuma rota escolhida). Como é uma string, mostrar a
-   * mesma rota de novo (ex.: a cada checkpoint) não refaz os pinos.
+   * IDs das paradas da rota em exibição.
+   * null = nenhuma rota escolhida.
    */
   const [routeKey, setRouteKey] = useState<string | null>(null);
 
-  /* lugares que devem ter pino agora */
+  /*
+   * Lugares que devem ter pino agora.
+   */
   const visiblePlaces = useMemo(
     () =>
-      placesOnRoute(places, routeKey === null ? null : routeKey.split(",")),
+      placesOnRoute(
+        places,
+        routeKey === null ? null : routeKey.split(","),
+      ),
     [places, routeKey],
   );
 
@@ -133,10 +168,20 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
     });
   };
 
+  /*
+   * Limpa completamente a rota atual.
+   *
+   * Esta é a única operação que deve realmente fazer
+   * o usuário sair da rota.
+   */
   const clearRoute = () => {
     pendingRouteRef.current = null;
+    activeRouteRef.current = null;
 
     setRouteKey(null);
+
+    routeInitializedRef.current = false;
+    lastModeRef.current = null;
 
     routes.clear(mapRef.current);
   };
@@ -168,14 +213,19 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
 
     if (import.meta.env.DEV) {
       map.on("click", (e) => {
-        const layers = map.queryRenderedFeatures(e.point).map((f) => f.layer.id);
+        const layers = map
+          .queryRenderedFeatures(e.point)
+          .map((f) => f.layer.id);
+
         const naAgua = layers.includes("Water");
+
         console.log(
-          `📍 [${e.lngLat.lng.toFixed(6)}, ${e.lngLat.lat.toFixed(6)}] ${naAgua ? "🌊 água" : "⚠️ não é água"}`,
+          `📍 [${e.lngLat.lng.toFixed(6)}, ${e.lngLat.lat.toFixed(6)}] ${
+            naAgua ? "🌊 água" : "⚠️ não é água"
+          }`,
         );
       });
     }
-
 
     map.on("styleimagemissing", (e) => {
       if (!map.hasImage(e.id)) {
@@ -191,12 +241,13 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
       /* tema visual do YTU */
       applyYtuMapTheme(map);
 
-      /* Marco Zero como geometria real do mapa (não é Marker HTML) */
+      /* Marco Zero como geometria real do mapa */
       addLandmarks(map);
 
       addBoats(map);
 
       map.resize();
+
       setReady(true);
     });
 
@@ -213,6 +264,8 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
 
       /* invalida rotas em andamento e apaga o que foi desenhado */
       pendingRouteRef.current = null;
+      activeRouteRef.current = null;
+
       routes.clear(map);
 
       removeLandmarks(map);
@@ -265,8 +318,18 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
 
     removeMarkers(markersRef.current);
 
-    markersRef.current = renderPlaceMarkers(map, visiblePlaces, (id) =>
-      onSelectRef.current(id),
+    markersRef.current = renderPlaceMarkers(
+      map,
+      visiblePlaces,
+      (id) => onSelectRef.current(id),
+    );
+
+    /*
+     * Define imediatamente a visibilidade dos nomes.
+     */
+    setMarkerLabels(
+      markersRef.current,
+      map.getZoom() >= LABEL_ZOOM,
     );
 
     return () => {
@@ -276,26 +339,93 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
     };
   }, [visiblePlaces, ready]);
 
+  /* ---------- nomes dos locais conforme o zoom ---------- */
+
+  useEffect(() => {
+    const map = mapRef.current;
+
+    if (!map || !ready) return;
+
+    const updateLabels = () => {
+      const visible = map.getZoom() >= LABEL_ZOOM;
+
+      setMarkerLabels(markersRef.current, visible);
+    };
+
+    map.on("zoom", updateLabels);
+
+    updateLabels();
+
+    return () => {
+      map.off("zoom", updateLabels);
+    };
+  }, [ready, visiblePlaces]);
+
   /* ---------- destaque ---------- */
 
   useEffect(() => {
     highlightMarker(markersRef.current, selected);
   }, [selected, visiblePlaces, ready]);
 
-  /* ---------- voo ---------- */
+  /* ---------- voo + preservação da rota ---------- */
 
   useEffect(() => {
     const p = places.find((x) => x.id === selected);
 
     const map = mapRef.current;
 
-    if (p && map && ready) {
-      map.flyTo({
-        center: [p.lng, p.lat],
-        zoom: Math.max(map.getZoom(), 15),
-        offset: [0, -90],
-        duration: 700,
-      });
+    if (!p || !map || !ready) return;
+
+    /*
+     * Primeiro leva a câmera até o local selecionado.
+     */
+    map.flyTo({
+      center: [p.lng, p.lat],
+      zoom: Math.max(map.getZoom(), 15),
+      offset: [0, -90],
+      duration: 700,
+    });
+
+    /*
+     * Se existe uma rota ativa, ela NÃO deve desaparecer
+     * quando selected muda.
+     *
+     * Redesenhamos a mesma rota sem fitRoute.
+     *
+     * Isso mantém:
+     *
+     * rota completa
+     *      +
+     * parada selecionada
+     *      +
+     * câmera focada na parada
+     */
+    const activeRoute = activeRouteRef.current;
+
+    if (activeRoute) {
+      /*
+       * Pequeno atraso para deixar o flyTo iniciar antes
+       * de garantir novamente as camadas da rota.
+       *
+       * Não usamos fitRoute aqui, portanto a câmera não
+       * volta para enquadrar a rota inteira.
+       */
+      const timer = window.setTimeout(() => {
+        const currentRoute = activeRouteRef.current;
+
+        if (!currentRoute || !mapRef.current) return;
+
+        void drawRoute(
+          currentRoute.ids,
+          currentRoute.currentCheckpoint,
+          false,
+          currentRoute.mode,
+        );
+      }, 40);
+
+      return () => {
+        window.clearTimeout(timer);
+      };
     }
   }, [selected, places, ready]);
 
@@ -324,7 +454,11 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
               coords.latitude,
             ];
 
-            meRef.current = showUserLocation(map, meRef.current, pos);
+            meRef.current = showUserLocation(
+              map,
+              meRef.current,
+              pos,
+            );
 
             map.flyTo({
               center: pos,
@@ -352,22 +486,48 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
         }
       },
 
-      showRoute: (ids, currentCheckpoint = 0, mode = DEFAULT_MODE) => {
+      showRoute: (
+        ids,
+        currentCheckpoint = 0,
+        mode = DEFAULT_MODE,
+      ) => {
+        /*
+         * Guarda a rota como a rota atualmente ativa.
+         *
+         * A partir daqui, mudar selected não significa
+         * sair da rota.
+         */
+        const route: PendingRoute = {
+          ids,
+          currentCheckpoint,
+          fitRoute: false,
+          mode,
+        };
+
+        activeRouteRef.current = route;
+
         setRouteKey(ids.join(","));
 
         const isNewRoute = !routeInitializedRef.current;
 
-        /* rota nova OU troca de modo (a pé ↔ bike): enquadra a câmera */
-        const fitRoute = isNewRoute || lastModeRef.current !== mode;
+        /*
+         * Rota nova OU troca de modo:
+         * reenquadra a câmera.
+         */
+        const fitRoute =
+          isNewRoute || lastModeRef.current !== mode;
 
         lastModeRef.current = mode;
 
-        pendingRouteRef.current = {
+        const pending: PendingRoute = {
           ids,
           currentCheckpoint,
           fitRoute,
           mode,
         };
+
+        activeRouteRef.current = pending;
+        pendingRouteRef.current = pending;
 
         routeInitializedRef.current = true;
 
@@ -394,7 +554,11 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
     <div
       ref={containerRef}
       className="absolute inset-0 z-0"
-      style={{ position: "absolute", inset: 0, zIndex: 0 }}
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: 0,
+      }}
     />
   );
 });

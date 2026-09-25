@@ -21,5 +21,6 @@ export const ROUTES: Route[] = [
     stops: ["marcozero", "frevo", "cais-sertao", "casa-cultura"],
     price: "Até R$15,00",
     img: "/paco-do-frevo.jpg",
+    featured: true, // 👈 é ela que aparece em /rotas/destaque
   },
 ];

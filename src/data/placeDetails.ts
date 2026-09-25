@@ -1,4 +1,3 @@
-// src/data/placeDetails.ts
 export type PlaceDetail = {
   id: string;
   name: string;
@@ -16,7 +15,7 @@ export type PlaceDetail = {
 };
 
 export const CAIS_DO_SERTAO: PlaceDetail = {
-  id: "cais-do-sertao",
+  id: "cais-sertao",
   name: "Museu Cais do Sertão",
   cover: "/img/cais-do-sertao.jpg",
   tags: ["CULTURA • MUSEU", "INTERATIVO"],
@@ -39,7 +38,7 @@ export const CAIS_DO_SERTAO: PlaceDetail = {
 };
 
 export const MERCADO_BOA_VISTA: PlaceDetail = {
-  id: "mercado-da-boa-vista",
+  id: "mercado-boa-vista",
   name: "Mercado da Boa Vista",
   cover: "/img/mercado-boa-vista.jpg",
   tags: ["GASTRONOMIA • FEIRA", "VIDA LOCAL"],
@@ -55,11 +54,14 @@ export const MERCADO_BOA_VISTA: PlaceDetail = {
     title: "Acessibilidade parcial",
     features: ["Piso plano", "Entrada ampla"],
   },
-  address: { line1: "Rua Conde de Irajá, s/n", line2: "Boa Vista, Recife/PE" },
+  address: {
+    line1: "Rua Conde de Irajá, s/n",
+    line2: "Boa Vista, Recife/PE",
+  },
 };
 
 export const PACO_DO_FREVO: PlaceDetail = {
-  id: "passo-do-frevo",
+  id: "frevo",
   name: "Paço do Frevo",
   cover: "/paco-do-frevo.jpg",
   tags: ["CULTURA • MUSEU", "MÚSICA E DANÇA"],
@@ -69,7 +71,10 @@ export const PACO_DO_FREVO: PlaceDetail = {
   distance: "850 m",
   description:
     "Casarão do século XIX dedicado ao frevo: acervo interativo, sala de dança, estúdios de música e aulas abertas. Impossível sair sem mexer o passo.",
-  hours: { value: "Ter a sex 9h às 17h", note: "Sáb e dom 11h às 17h • Fecha às segundas" },
+  hours: {
+    value: "Ter a sex 9h às 17h",
+    note: "Sáb e dom 11h às 17h • Fecha às segundas",
+  },
   ticket: { value: "R$ 10", note: "Meia R$ 5 • Grátis às terças" },
   accessibility: {
     title: "Totalmente acessível",
@@ -81,10 +86,8 @@ export const PACO_DO_FREVO: PlaceDetail = {
   },
 };
 
-
 export const PLACE_DETAILS: Record<string, PlaceDetail> = {
   [PACO_DO_FREVO.id]: PACO_DO_FREVO,
   [CAIS_DO_SERTAO.id]: CAIS_DO_SERTAO,
   [MERCADO_BOA_VISTA.id]: MERCADO_BOA_VISTA,
 };
-
