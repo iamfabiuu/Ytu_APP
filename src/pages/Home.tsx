@@ -1,6 +1,8 @@
 // src/pages/Home.tsx
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
+import { Top3Carousel } from "../components/Top3Carousel";
+
 
 const CHIPS = ["Cultura", "Música", "História", "Culinária"];
 
@@ -26,27 +28,29 @@ const PLACES = [
 ];
 
 const CATEGORIES = [
-  { label: "Econômica",    bg: "bg-brand-blue",   icon: "/Economic.svg" },
+  { label: "Econômica", bg: "bg-brand-blue", icon: "/Economic.svg" },
   { label: "Performática", bg: "bg-brand-yellow", icon: "/perform.svg" },
-  { label: "De casal",     bg: "bg-brand-red",    icon: "/casal.svg" },
-  { label: "Sozinho",      bg: "bg-brand-orange", icon: "/sozinho.svg" },
-  { label: "Em Família",   bg: "bg-brand-blue",   icon: "/familia.svg" },
-  { label: "Com amigos",   bg: "bg-brand-orange", icon: "/amigos.svg" },
+  { label: "De casal", bg: "bg-brand-red", icon: "/casal.svg" },
+  { label: "Sozinho", bg: "bg-brand-orange", icon: "/sozinho.svg" },
+  { label: "Em Família", bg: "bg-brand-blue", icon: "/familia.svg" },
+  { label: "Com amigos", bg: "bg-brand-orange", icon: "/amigos.svg" },
 ];
 
 const TOP3 = [
+    {
+    rank: 1,
+    title: "Recife a pé e sem pressa",
+    meta: "4 paradas • 3h • Grátis",
+    bg: "bg-brand-blue",
+  },
+
   {
     rank: 2,
     title: "Sabores do mercado",
     meta: "3 paradas • 2h • Grátis",
     bg: "bg-brand-yellow",
   },
-  {
-    rank: 1,
-    title: "Recife a pé e sem pressa",
-    meta: "4 paradas • 3h • Grátis",
-    bg: "bg-brand-blue",
-  },
+
   {
     rank: 3,
     title: "Recife Antigo ao pôr do sol",
@@ -71,11 +75,26 @@ function SectionHead({ title, to }: { title: string; to?: string }) {
   );
 }
 
+
+const BG_IMAGE = "/fundoHome.svg";
+const BG_OPACITY = 0.9;
+
 export function Home() {
   const [active, setActive] = [CHIPS[0], (_: string) => {}]; // troque por useState se quiser interativo
 
   return (
-    <div className="bg-sand min-h-full">
+    <div className="relative isolate min-h-full bg-sand">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 select-none"
+        style={{
+          backgroundImage: `url(${BG_IMAGE})`,
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "800px 1400px",
+          opacity: BG_OPACITY,
+        }}
+      />
+
       {/* Header */}
       <header className="rounded-b-3xl bg-brand-yellow px-4 pb-5 pt-4">
         <img src="/logo.svg" alt="Ytu" className="h-18 w-18" />
@@ -111,54 +130,53 @@ export function Home() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-md space-y-8 px-4 pb-32 pt-5">
-{/* Rota da semana */}
-<Link
-  to="/rotas/destaque"
-  aria-label="Rota da semana: Recife a pé e sem pressa — 4 paradas, 3h, grátis"
-  className="group relative isolate flex min-h-[210px] flex-col justify-center overflow-hidden rounded-2xl bg-brand-blue p-5 text-white shadow-lg shadow-brand-blue/20 transition active:scale-[0.98]"
->
-  {/* pattern de fundo */}
-  <img
-    src="/image 59.svg"
-    alt=""
-    aria-hidden
-    className="pointer-events-none absolute inset-0 -z-10 size-full select-none object-cover opacity-[0.18]"
-  />
+      <main className="relative mx-auto max-w-md space-y-8 px-4 pb-32 pt-5">
+        {/* Rota da semana */}
+        <Link
+          to="/rotas/destaque"
+          aria-label="Rota da semana: Recife a pé e sem pressa — 4 paradas, 3h, grátis"
+          className="group relative isolate flex min-h-[210px] flex-col justify-center overflow-hidden rounded-2xl bg-brand-blue p-5 text-white shadow-lg shadow-brand-blue/20 transition active:scale-[0.98]"
+        >
+          {/* pattern de fundo */}
+          <img
+            src="/image 59.svg"
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10 size-full select-none object-cover opacity-[0.18]"
+          />
 
-  {/* fade pra legibilidade */}
-  <span
-    aria-hidden
-    className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-blue via-brand-blue/80 to-transparent"
-  />
+          {/* fade pra legibilidade */}
+          <span
+            aria-hidden
+            className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-blue via-brand-blue/80 to-transparent"
+          />
 
-  <span className="relative text-xs font-bold tracking-[0.2em] text-brand-yellow">
-    ROTA DA SEMANA
-  </span>
+          <span className="relative text-xs font-bold tracking-[0.2em] text-brand-yellow">
+            ROTA DA SEMANA
+          </span>
 
-  <h3 className="relative mt-2 max-w-[60%] text-3xl font-extrabold leading-tight">
-    Recife a pé e sem pressa
-  </h3>
+          <h3 className="relative mt-2 max-w-[60%] text-3xl font-extrabold leading-tight">
+            Recife a pé e sem pressa
+          </h3>
 
-  <p className="relative mt-3 flex items-center gap-2 text-sm font-semibold text-white/85">
-    4 paradas <span className="text-white/35">•</span> 3h
-    <span className="text-white/35">•</span>
-    <span className="text-brand-yellow">Grátis</span>
-  </p>
+          <p className="relative mt-3 flex items-center gap-2 text-sm font-semibold text-white/85">
+            4 paradas <span className="text-white/35">•</span> 3h
+            <span className="text-white/35">•</span>
+            <span className="text-brand-yellow">Grátis</span>
+          </p>
 
-  <span className="relative mt-4 flex w-fit items-center gap-1.5 rounded-full bg-brand-yellow px-4 py-2 text-xs font-extrabold text-brand-blue">
-    Iniciar rota
-    <ChevronRight className="size-3.5 transition group-active:translate-x-0.5" />
-  </span>
+          <span className="relative mt-4 flex w-fit items-center gap-1.5 rounded-full bg-brand-yellow px-4 py-2 text-xs font-extrabold text-brand-blue">
+            Iniciar rota
+            <ChevronRight className="size-3.5 transition group-active:translate-x-0.5" />
+          </span>
 
-  <img
-    src="/Group 15.svg"
-    alt=""
-    aria-hidden
-    className="pointer-events-none absolute right-5 top-1/2 size-20 -translate-y-1/2 select-none object-contain drop-shadow"
-  />
-</Link>
-
+          <img
+            src="/Group 15.svg"
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute right-5 top-1/2 size-20 -translate-y-1/2 select-none object-contain drop-shadow"
+          />
+        </Link>
 
         {/* Lugares */}
         <section>
@@ -166,7 +184,8 @@ export function Home() {
           <ul className="space-y-3">
             {PLACES.map((p) => (
               <li key={p.id}>
-<Link to={`/lugar/${p.id}`}
+                <Link
+                  to={`/lugar/${p.id}`}
                   className="flex items-center gap-3 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5"
                 >
                   <img
@@ -189,63 +208,38 @@ export function Home() {
           </ul>
         </section>
 
-{/* Categorias */}
-<section>
-  <SectionHead title="Explorar por categorias de Rotas" to="/nearby" />
-  <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-    {CATEGORIES.map((c) => (
-      <button
-        key={c.label}
-        aria-label={`Categoria ${c.label}`}
-        className={`group relative isolate h-24 w-40 shrink-0 overflow-hidden rounded-2xl px-4 text-left text-lg font-extrabold text-white shadow-sm transition active:scale-[0.97] ${c.bg}`}
-      >
-        {/* ícone de fundo */}
-        <img
-          src={c.icon}
-          alt=""
-          aria-hidden
-          className="pointer-events-none absolute -bottom-2 -right-2 -z-10 size-24 select-none object-contain opacity-25 transition group-active:scale-110"
-        />
-        {/* fade pra legibilidade do texto */}
-        <span
-          aria-hidden
-          className="absolute inset-0 -z-10 bg-gradient-to-r from-black/15 to-transparent"
-        />
-        <span className="relative drop-shadow-sm">{c.label}</span>
-      </button>
-    ))}
-  </div>
-</section>
-
-
-        {/* Top 3 */}
+        {/* Categorias */}
         <section>
-          <SectionHead title="Top 3 Roteiros Arretados!" />
-          <div className="-mx-4 flex items-center gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {TOP3.map((r) => (
-              <article
-                key={r.rank}
-                className={`shrink-0 rounded-2xl p-4 text-center text-white ${r.bg} ${
-                  r.rank === 1
-                    ? "z-10 w-44 scale-105 shadow-xl"
-                    : "w-40 opacity-95"
-                }`}
+          <SectionHead title="Explorar por categorias de Rotas" to="/nearby" />
+          <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {CATEGORIES.map((c) => (
+              <button
+                key={c.label}
+                aria-label={`Categoria ${c.label}`}
+                className={`group relative isolate h-24 w-40 shrink-0 overflow-hidden rounded-2xl px-4 text-left text-lg font-extrabold text-white shadow-sm transition active:scale-[0.97] ${c.bg}`}
               >
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-yellow text-2xl font-extrabold text-brand-blue">
-                  {r.rank}
-                </div>
-                <h3 className="mt-3 text-lg font-extrabold leading-tight">
-                  {r.title}
-                </h3>
-                <p className="mt-1 text-[11px] font-semibold opacity-90">
-                  {r.meta}
-                </p>
-                <p aria-hidden className="mt-4 text-4xl">
-                  🌀
-                </p>
-              </article>
+                {/* ícone de fundo */}
+                <img
+                  src={c.icon}
+                  alt=""
+                  aria-hidden
+                  className="pointer-events-none absolute -bottom-2 -right-2 -z-10 size-24 select-none object-contain opacity-25 transition group-active:scale-110"
+                />
+                {/* fade pra legibilidade do texto */}
+                <span
+                  aria-hidden
+                  className="absolute inset-0 -z-10 bg-gradient-to-r from-black/15 to-transparent"
+                />
+                <span className="relative drop-shadow-sm">{c.label}</span>
+              </button>
             ))}
           </div>
+        </section>
+
+        {/* Top 3 — carrossel giratório */}
+        <section>
+          <SectionHead title="Top 3 Roteiros Arretados!" />
+          <Top3Carousel items={TOP3} />
         </section>
       </main>
     </div>
