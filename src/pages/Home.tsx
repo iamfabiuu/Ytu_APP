@@ -26,10 +26,12 @@ const PLACES = [
 ];
 
 const CATEGORIES = [
-  { label: "Econômica", bg: "bg-brand-blue" },
-  { label: "Performática", bg: "bg-brand-yellow" },
-  { label: "De casal", bg: "bg-brand-red" },
-  { label: "Radical", bg: "bg-brand-blue" },
+  { label: "Econômica",    bg: "bg-brand-blue",   icon: "/Economic.svg" },
+  { label: "Performática", bg: "bg-brand-yellow", icon: "/perform.svg" },
+  { label: "De casal",     bg: "bg-brand-red",    icon: "/casal.svg" },
+  { label: "Sozinho",      bg: "bg-brand-orange", icon: "/sozinho.svg" },
+  { label: "Em Família",   bg: "bg-brand-blue",   icon: "/familia.svg" },
+  { label: "Com amigos",   bg: "bg-brand-orange", icon: "/amigos.svg" },
 ];
 
 const TOP3 = [
@@ -76,7 +78,7 @@ export function Home() {
     <div className="bg-sand min-h-full">
       {/* Header */}
       <header className="rounded-b-3xl bg-brand-yellow px-4 pb-5 pt-4">
-        <img src="/logo.svg" alt="Ytu" className="h-10 w-10" />
+        <img src="/logo.svg" alt="Ytu" className="h-18 w-18" />
 
         <form
           role="search"
@@ -187,20 +189,34 @@ export function Home() {
           </ul>
         </section>
 
-        {/* Categorias */}
-        <section>
-          <SectionHead title="Explorar por categorias de Rotas" to="/nearby" />
-          <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c.label}
-                className={`h-24 w-40 shrink-0 rounded-2xl px-4 text-left text-lg font-extrabold text-white ${c.bg}`}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
-        </section>
+{/* Categorias */}
+<section>
+  <SectionHead title="Explorar por categorias de Rotas" to="/nearby" />
+  <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    {CATEGORIES.map((c) => (
+      <button
+        key={c.label}
+        aria-label={`Categoria ${c.label}`}
+        className={`group relative isolate h-24 w-40 shrink-0 overflow-hidden rounded-2xl px-4 text-left text-lg font-extrabold text-white shadow-sm transition active:scale-[0.97] ${c.bg}`}
+      >
+        {/* ícone de fundo */}
+        <img
+          src={c.icon}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute -bottom-2 -right-2 -z-10 size-24 select-none object-contain opacity-25 transition group-active:scale-110"
+        />
+        {/* fade pra legibilidade do texto */}
+        <span
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-black/15 to-transparent"
+        />
+        <span className="relative drop-shadow-sm">{c.label}</span>
+      </button>
+    ))}
+  </div>
+</section>
+
 
         {/* Top 3 */}
         <section>
