@@ -38,7 +38,7 @@ export function Nearby() {
         <img
           src="/logo.svg"
           alt="Vivo Recife"
-          className="relative h-12 w-auto"
+          className="relative h-18 w-auto"
         />
 
         <h1 className="relative mt-8 text-[26px] font-extrabold leading-tight text-white">

@@ -185,7 +185,7 @@ export default function Onboarding() {
         <img
           src="/logo.svg"
           alt="YTU"
-          className="ytu-in h-12 w-auto"
+          className="ytu-in h-18 w-auto"
           style={{ "--d": "80ms", "--dx": "0px" } as React.CSSProperties}
         />
         <button

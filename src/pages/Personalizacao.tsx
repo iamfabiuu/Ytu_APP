@@ -198,7 +198,7 @@ export default function Personalizacao() {
 
       {/* topo */}
       <header className="shrink-0 px-6 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-5">
-        <img src="/logo.svg" alt="YTU" className="h-14 w-auto" />
+        <img src="/logo.svg" alt="YTU" className="h-18 w-auto" />
         <div className="mt-4 flex gap-1.5">
           {STEPS.map((_, i) => (
             <span

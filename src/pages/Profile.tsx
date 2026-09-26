@@ -102,7 +102,7 @@ export function Profile() {
 
             <Link
               to="/cupons"
-              className="mt-4 inline-flex rounded-full bg-[#F59E0B] px-6 py-2.5 text-sm font-bold text-white shadow transition active:scale-95 hover:bg-[#E08A08]"
+              className="mt-4 inline-flex rounded-full bg-[#F59E0B] px-6 py-2.5 text-sm font-bold text-[#0B3A73] shadow transition active:scale-95 hover:bg-[#E08A08]"
             >
               Ver cupons
             </Link>
@@ -154,7 +154,7 @@ export function Profile() {
         </ul>
       </div>
 
-            {/* RESUMO DE CONQUISTAS */}
+      {/* RESUMO DE CONQUISTAS */}
       <div className="relative z-10 mt-8 px-4">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-[15px] font-extrabold text-ink">Conquistas</h2>
