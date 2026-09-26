@@ -1,7 +1,23 @@
+// src/data/places.ts
+
+/** Chips da UI — única fonte de verdade */
+export const CATEGORIES = [
+  "Tudo",
+  "Cultura",
+  "Praias",
+  "Comida",
+  "Culinária",
+  "Patrimônio",
+  "Eventos",
+] as const;
+
+export type Category = Exclude<(typeof CATEGORIES)[number], "Tudo">;
+
 export type Place = {
   id: string;
   label: string;
-  cat: string;
+  cat: Category; // usado no filtro
+  subcat: string; // badge no card (Museu, Teatro, Parque...)
   dist: string;
   hours: string;
   lng: number;
@@ -9,11 +25,12 @@ export type Place = {
 };
 
 export const PLACES: Place[] = [
+  // ───────────── ⭐ ÍCONES DO RECIFE ─────────────
   {
-    // ID legado: "frevo" representa especificamente o Paço do Frevo.
     id: "frevo",
     label: "Paço do Frevo",
     cat: "Cultura",
+    subcat: "Museu",
     dist: "1,2 km",
     hours: "Aberto até 17h",
     lng: -34.871571,
@@ -23,15 +40,17 @@ export const PLACES: Place[] = [
     id: "marcozero",
     label: "Marco Zero",
     cat: "Patrimônio",
+    subcat: "Marco histórico",
     dist: "1,4 km",
     hours: "Aberto 24h",
-    lng: -34.871204253745965,
-    lat: -8.063084808406737,
+    lng: -34.871204,
+    lat: -8.063085,
   },
   {
     id: "boaviagem",
     label: "Praia de Boa Viagem",
     cat: "Praias",
+    subcat: "Praia",
     dist: "6,8 km",
     hours: "Aberto 24h",
     lng: -34.893,
@@ -41,16 +60,17 @@ export const PLACES: Place[] = [
     id: "ricardo",
     label: "Instituto Ricardo Brennand",
     cat: "Cultura",
+    subcat: "Museu",
     dist: "9,1 km",
     hours: "Aberto até 17h",
     lng: -34.9585,
     lat: -8.076,
   },
   {
-    // ID legado: "mercado" representa especificamente o Mercado de São José.
     id: "mercado",
     label: "Mercado de São José",
     cat: "Comida",
+    subcat: "Mercado público",
     dist: "1,9 km",
     hours: "Aberto até 17h",
     lng: -34.877,
@@ -60,6 +80,7 @@ export const PLACES: Place[] = [
     id: "casa-cultura",
     label: "Casa da Cultura",
     cat: "Cultura",
+    subcat: "Artesanato",
     dist: "1,8 km",
     hours: "Aberto até 17h",
     lng: -34.883067,
@@ -69,214 +90,223 @@ export const PLACES: Place[] = [
     id: "cais-sertao",
     label: "Cais do Sertão",
     cat: "Cultura",
+    subcat: "Museu",
     dist: "2,0 km",
     hours: "Aberto até 16h",
-    lng: -34.86997525733125,
-    lat: -8.06028020251848,
+    lng: -34.869975,
+    lat: -8.06028,
   },
+
+  // ───────────── 🌳 PARQUES E PRAÇAS ─────────────
   {
     id: "dona-lindu",
     label: "Parque Dona Lindu",
-    cat: "Parques",
+    cat: "Patrimônio",
+    subcat: "Parque",
     dist: "9,0 km",
     hours: "Aberto 24h",
     lng: -34.90453,
     lat: -8.14192,
   },
-
   {
     id: "boa-viagem",
     label: "Praça de Boa Viagem",
-    cat: "Praças",
+    cat: "Patrimônio",
+    subcat: "Praça",
     dist: "8,2 km",
     hours: "Aberto 24h",
     lng: -34.90073,
     lat: -8.13201,
   },
-
   {
     id: "jaqueira",
     label: "Parque da Jaqueira",
-    cat: "Parques",
+    cat: "Patrimônio",
+    subcat: "Parque",
     dist: "4,2 km",
     hours: "Aberto até 22h",
     lng: -34.90479,
     lat: -8.03689,
   },
-
   {
     id: "treze-maio",
     label: "Parque 13 de Maio",
-    cat: "Parques",
+    cat: "Patrimônio",
+    subcat: "Parque",
     dist: "1,8 km",
     hours: "Aberto até 22h",
     lng: -34.88183,
     lat: -8.05763,
   },
-
   {
     id: "parque-gracas",
     label: "Parque das Graças",
-    cat: "Parques",
+    cat: "Patrimônio",
+    subcat: "Parque",
     dist: "3,0 km",
     hours: "Aberto 24h",
     lng: -34.905,
     lat: -8.049,
   },
-
   {
     id: "derby",
     label: "Praça do Derby",
-    cat: "Praças",
+    cat: "Patrimônio",
+    subcat: "Praça",
     dist: "3,0 km",
     hours: "Aberto 24h",
     lng: -34.89845,
     lat: -8.05652,
   },
-
   {
     id: "baoba",
     label: "Jardim do Baobá",
-    cat: "Parques",
+    cat: "Patrimônio",
+    subcat: "Parque",
     dist: "3,4 km",
     hours: "Aberto 24h",
     lng: -34.9044,
     lat: -8.0415,
   },
-
   {
     id: "santana",
     label: "Parque Santana - Ariano Suassuna",
-    cat: "Parques",
+    cat: "Patrimônio",
+    subcat: "Parque",
     dist: "5,5 km",
     hours: "Aberto até 21h",
     lng: -34.9179,
     lat: -8.04197,
   },
-
   {
     id: "macaxeira",
     label: "Parque Urbano da Macaxeira",
-    cat: "Parques",
+    cat: "Patrimônio",
+    subcat: "Parque",
     dist: "8,0 km",
     hours: "Aberto até 22h",
     lng: -34.93116,
     lat: -8.01639,
   },
-
   {
     id: "tamarineira",
     label: "Parque da Tamarineira",
-    cat: "Parques",
+    cat: "Patrimônio",
+    subcat: "Parque",
     dist: "4,2 km",
     hours: "Aberto 24h",
     lng: -34.90311,
     lat: -8.03348,
   },
+
+  // ───────────── 🍹 BARES E COMEDORIAS ─────────────
   {
     id: "sabor-pernambuco",
     label: "Restaurante Cultural Sabor de Pernambuco",
     cat: "Culinária",
+    subcat: "Regional",
     dist: "1,2 km",
     hours: "Aberto até 21h",
     lng: -34.873,
     lat: -8.061,
   },
-
   {
     id: "armazem-rio-branco",
     label: "Armazém Rio Branco",
     cat: "Culinária",
+    subcat: "Bar",
     dist: "1,0 km",
     hours: "Aberto até 23h",
     lng: -34.8719,
     lat: -8.0619,
   },
-
   {
     id: "bodega-veio",
     label: "Bodega de Véio",
     cat: "Culinária",
+    subcat: "Bodega",
     dist: "1,0 km",
     hours: "Aberto até 23h",
     lng: -34.873043,
     lat: -8.062835,
   },
-
   {
     id: "rota-marujo",
     label: "Rota do Marujo",
     cat: "Culinária",
+    subcat: "Bar",
     dist: "1,0 km",
     hours: "Aberto até 0h",
     lng: -34.872957,
     lat: -8.064431,
   },
-
   {
     id: "lulu-comedoria",
     label: "Lulu Comedoria",
     cat: "Culinária",
+    subcat: "Comedoria",
     dist: "1,5 km",
     hours: "Aberto até 20h",
     lng: -34.871,
     lat: -8.059,
   },
-
   {
     id: "zero-um",
     label: "Bar Zero Um",
     cat: "Culinária",
+    subcat: "Bar",
     dist: "1,2 km",
     hours: "Aberto até 0h",
     lng: -34.8735,
     lat: -8.0615,
   },
-
   {
     id: "frege",
     label: "Frege",
     cat: "Culinária",
+    subcat: "Bar",
     dist: "1,0 km",
     hours: "Aberto até 23h",
     lng: -34.8719,
     lat: -8.0619,
   },
-
   {
     id: "moedao",
     label: "O Moedão",
     cat: "Culinária",
+    subcat: "Bar",
     dist: "1,1 km",
     hours: "Aberto até 23h",
     lng: -34.8725,
     lat: -8.0643,
   },
-
   {
     id: "as-galerias",
     label: "As Galerias",
     cat: "Culinária",
+    subcat: "Bar",
     dist: "1,0 km",
     hours: "Aberto até 22h",
     lng: -34.872,
     lat: -8.0605,
   },
-
   {
     id: "cais-rooftop",
     label: "Cais Rooftop Lounge Bar",
     cat: "Culinária",
+    subcat: "Rooftop",
     dist: "1,0 km",
     hours: "Aberto até 1h",
     lng: -34.8705,
     lat: -8.0607,
   },
-  // ───────────────────────── 🏛️ MUSEUS (20) ─────────────────────────
+
+  // ───────────── 🏛️ MUSEUS (20) ─────────────
   {
     id: "oficina-brennand",
     label: "Oficina Cerâmica Francisco Brennand",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "14,0 km",
     hours: "Aberto até 17h",
     lng: -34.99148,
@@ -285,7 +315,8 @@ export const PLACES: Place[] = [
   {
     id: "mepe",
     label: "Museu do Estado de Pernambuco",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "3,6 km",
     hours: "Aberto até 17h",
     lng: -34.89676,
@@ -294,7 +325,8 @@ export const PLACES: Place[] = [
   {
     id: "museu-homem-nordeste",
     label: "Museu do Homem do Nordeste",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "5,2 km",
     hours: "Aberto até 17h",
     lng: -34.90807,
@@ -303,7 +335,8 @@ export const PLACES: Place[] = [
   {
     id: "museu-abolicao",
     label: "Museu da Abolição",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "3,8 km",
     hours: "Aberto até 16h",
     lng: -34.90185,
@@ -312,7 +345,8 @@ export const PLACES: Place[] = [
   {
     id: "mamam",
     label: "MAMAM — Aloísio Magalhães",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "2,2 km",
     hours: "Aberto até 17h",
     lng: -34.88566,
@@ -321,7 +355,8 @@ export const PLACES: Place[] = [
   {
     id: "cinco-pontas",
     label: "Museu da Cidade do Recife",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "2,3 km",
     hours: "Aberto até 17h",
     lng: -34.8792,
@@ -330,7 +365,8 @@ export const PLACES: Place[] = [
   {
     id: "forte-brum",
     label: "Forte do Brum",
-    cat: "Museus",
+    cat: "Patrimônio",
+    subcat: "Forte",
     dist: "1,6 km",
     hours: "Aberto até 16h",
     lng: -34.8688,
@@ -339,7 +375,8 @@ export const PLACES: Place[] = [
   {
     id: "espaco-ciencia",
     label: "Espaço Ciência",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "10,5 km",
     hours: "Aberto até 17h",
     lng: -34.9405,
@@ -348,7 +385,8 @@ export const PLACES: Place[] = [
   {
     id: "museu-trem",
     label: "Museu do Trem",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "2,0 km",
     hours: "Aberto até 16h",
     lng: -34.88054,
@@ -357,7 +395,8 @@ export const PLACES: Place[] = [
   {
     id: "sinagoga-kahal",
     label: "Kahal Zur Israel — Sinagoga",
-    cat: "Museus",
+    cat: "Patrimônio",
+    subcat: "Sítio histórico",
     dist: "1,1 km",
     hours: "Aberto até 17h",
     lng: -34.87199,
@@ -366,7 +405,8 @@ export const PLACES: Place[] = [
   {
     id: "memorial-justica",
     label: "Memorial da Justiça de PE",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "1,9 km",
     hours: "Aberto até 17h",
     lng: -34.8822,
@@ -375,7 +415,8 @@ export const PLACES: Place[] = [
   {
     id: "museu-cais-aurora",
     label: "Museu Murillo La Greca",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "4,6 km",
     hours: "Aberto até 17h",
     lng: -34.9096,
@@ -383,8 +424,9 @@ export const PLACES: Place[] = [
   },
   {
     id: "museu-mamulengo",
-    label: "Museu do Mamulengo (acervo popular)",
-    cat: "Museus",
+    label: "Museu do Mamulengo",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "2,1 km",
     hours: "Aberto até 17h",
     lng: -34.8834,
@@ -393,7 +435,8 @@ export const PLACES: Place[] = [
   {
     id: "museu-imagem-som",
     label: "Museu da Imagem e do Som de PE",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "2,4 km",
     hours: "Aberto até 17h",
     lng: -34.8866,
@@ -402,7 +445,8 @@ export const PLACES: Place[] = [
   {
     id: "casa-carnaval",
     label: "Casa do Carnaval",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "1,3 km",
     hours: "Aberto até 17h",
     lng: -34.8722,
@@ -411,7 +455,8 @@ export const PLACES: Place[] = [
   {
     id: "museu-pharmacia",
     label: "Museu da Farmácia de PE",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "2,0 km",
     hours: "Aberto até 16h",
     lng: -34.8846,
@@ -420,7 +465,8 @@ export const PLACES: Place[] = [
   {
     id: "museu-ceramica-brennand",
     label: "Galeria Açucena — IRB",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Galeria",
     dist: "9,2 km",
     hours: "Aberto até 17h",
     lng: -34.95873,
@@ -429,7 +475,8 @@ export const PLACES: Place[] = [
   {
     id: "museu-forte-buraco",
     label: "Forte do Buraco (memorial)",
-    cat: "Museus",
+    cat: "Patrimônio",
+    subcat: "Forte",
     dist: "5,5 km",
     hours: "Aberto até 17h",
     lng: -34.8793,
@@ -438,7 +485,8 @@ export const PLACES: Place[] = [
   {
     id: "museu-arte-sacra",
     label: "Museu de Arte Sacra — São Pedro",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "1,8 km",
     hours: "Aberto até 16h",
     lng: -34.8797,
@@ -447,18 +495,20 @@ export const PLACES: Place[] = [
   {
     id: "museu-nautico",
     label: "Museu Náutico do Recife",
-    cat: "Museus",
+    cat: "Cultura",
+    subcat: "Museu",
     dist: "1,5 km",
     hours: "Aberto até 16h",
     lng: -34.8695,
     lat: -8.0575,
   },
 
-  // ───────────────────────── 🍽️ RESTAURANTES (20) ─────────────────────────
+  // ───────────── 🍽️ RESTAURANTES (20) ─────────────
   {
     id: "leite",
     label: "Restaurante Leite (1882)",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Restaurante",
     dist: "1,9 km",
     hours: "Aberto até 16h",
     lng: -34.88147,
@@ -467,7 +517,8 @@ export const PLACES: Place[] = [
   {
     id: "bar-central",
     label: "Bar Central",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Bar",
     dist: "2,4 km",
     hours: "Aberto até 0h",
     lng: -34.8886,
@@ -476,7 +527,8 @@ export const PLACES: Place[] = [
   {
     id: "buraquinho",
     label: "Buraquinho",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Restaurante",
     dist: "1,2 km",
     hours: "Aberto até 22h",
     lng: -34.8726,
@@ -485,7 +537,8 @@ export const PLACES: Place[] = [
   {
     id: "gambrinus",
     label: "Gambrinus",
-    cat: "Restaurantes",
+    cat: "Comida",
+    subcat: "Restaurante",
     dist: "1,9 km",
     hours: "Aberto até 16h",
     lng: -34.8772,
@@ -494,7 +547,8 @@ export const PLACES: Place[] = [
   {
     id: "bargaco",
     label: "Bargaço",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Frutos do mar",
     dist: "7,4 km",
     hours: "Aberto até 23h",
     lng: -34.8954,
@@ -503,7 +557,8 @@ export const PLACES: Place[] = [
   {
     id: "parraxaxa",
     label: "Parraxaxá",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Regional",
     dist: "7,9 km",
     hours: "Aberto até 22h",
     lng: -34.9019,
@@ -512,7 +567,8 @@ export const PLACES: Place[] = [
   {
     id: "chica-pitanga",
     label: "Chica Pitanga",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Restaurante",
     dist: "6,2 km",
     hours: "Aberto até 16h",
     lng: -34.8917,
@@ -521,7 +577,8 @@ export const PLACES: Place[] = [
   {
     id: "casa-dos-frios",
     label: "Casa dos Frios (1922)",
-    cat: "Restaurantes",
+    cat: "Comida",
+    subcat: "Padaria",
     dist: "2,5 km",
     hours: "Aberto até 19h",
     lng: -34.8894,
@@ -530,7 +587,8 @@ export const PLACES: Place[] = [
   {
     id: "bode-do-no",
     label: "Bode do Nô",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Regional",
     dist: "6,4 km",
     hours: "Aberto até 0h",
     lng: -34.9156,
@@ -539,7 +597,8 @@ export const PLACES: Place[] = [
   {
     id: "entre-amigos-bode",
     label: "Entre Amigos o Bode",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Regional",
     dist: "7,1 km",
     hours: "Aberto até 0h",
     lng: -34.9008,
@@ -548,7 +607,8 @@ export const PLACES: Place[] = [
   {
     id: "oficina-do-sabor",
     label: "Oficina do Sabor (Olinda)",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Autoral",
     dist: "7,0 km",
     hours: "Aberto até 22h",
     lng: -34.8534,
@@ -557,7 +617,8 @@ export const PLACES: Place[] = [
   {
     id: "bolo-rei",
     label: "Bolo Rei",
-    cat: "Restaurantes",
+    cat: "Comida",
+    subcat: "Doceria",
     dist: "3,1 km",
     hours: "Aberto até 19h",
     lng: -34.8942,
@@ -566,7 +627,8 @@ export const PLACES: Place[] = [
   {
     id: "pobre-joao",
     label: "Pobre João",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Bar",
     dist: "4,5 km",
     hours: "Aberto até 0h",
     lng: -34.9044,
@@ -575,7 +637,8 @@ export const PLACES: Place[] = [
   {
     id: "camarada-camarao",
     label: "Camarada Camarão",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Frutos do mar",
     dist: "6,9 km",
     hours: "Aberto até 23h",
     lng: -34.8988,
@@ -584,7 +647,8 @@ export const PLACES: Place[] = [
   {
     id: "ponteio-grill",
     label: "Ponteio Grill",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Churrascaria",
     dist: "8,0 km",
     hours: "Aberto até 23h",
     lng: -34.9035,
@@ -593,7 +657,8 @@ export const PLACES: Place[] = [
   {
     id: "spettus",
     label: "Spettus Steak House",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Churrascaria",
     dist: "6,6 km",
     hours: "Aberto até 0h",
     lng: -34.8963,
@@ -602,7 +667,8 @@ export const PLACES: Place[] = [
   {
     id: "wiella-bistrot",
     label: "Wiella Bistrot",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Bistrô",
     dist: "4,4 km",
     hours: "Aberto até 23h",
     lng: -34.9026,
@@ -611,7 +677,8 @@ export const PLACES: Place[] = [
   {
     id: "ilha-do-sol",
     label: "Restaurante Ilha do Sol",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Restaurante",
     dist: "1,7 km",
     hours: "Aberto até 17h",
     lng: -34.8768,
@@ -620,7 +687,8 @@ export const PLACES: Place[] = [
   {
     id: "beijupira",
     label: "Beijupirá Recife",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Autoral",
     dist: "6,8 km",
     hours: "Aberto até 23h",
     lng: -34.8949,
@@ -629,18 +697,20 @@ export const PLACES: Place[] = [
   {
     id: "mingus",
     label: "Mingus",
-    cat: "Restaurantes",
+    cat: "Culinária",
+    subcat: "Bar",
     dist: "7,2 km",
     hours: "Aberto até 0h",
     lng: -34.9012,
     lat: -8.1224,
   },
 
-  // ───────────────────────── 🎭 TEATROS (20) ─────────────────────────
+  // ───────────── 🎭 TEATROS (20) → chip "Eventos" ─────────────
   {
     id: "santa-isabel",
     label: "Teatro de Santa Isabel (1850)",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "1,7 km",
     hours: "Bilheteria até 18h",
     lng: -34.88053,
@@ -649,7 +719,8 @@ export const PLACES: Place[] = [
   {
     id: "teatro-do-parque",
     label: "Teatro do Parque (1915)",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "2,1 km",
     hours: "Bilheteria até 19h",
     lng: -34.8869,
@@ -658,7 +729,8 @@ export const PLACES: Place[] = [
   {
     id: "teatro-apolo",
     label: "Teatro Apolo",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "1,3 km",
     hours: "Bilheteria até 18h",
     lng: -34.8724,
@@ -667,7 +739,8 @@ export const PLACES: Place[] = [
   {
     id: "hermilo-borba-filho",
     label: "Teatro Hermilo Borba Filho",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "1,8 km",
     hours: "Bilheteria até 18h",
     lng: -34.8832,
@@ -676,7 +749,8 @@ export const PLACES: Place[] = [
   {
     id: "barreto-junior",
     label: "Teatro Barreto Júnior",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "6,5 km",
     hours: "Bilheteria até 19h",
     lng: -34.9001,
@@ -685,7 +759,8 @@ export const PLACES: Place[] = [
   {
     id: "marco-camarotti",
     label: "Teatro Marco Camarotti (Sesc)",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "2,6 km",
     hours: "Bilheteria até 19h",
     lng: -34.8905,
@@ -694,7 +769,8 @@ export const PLACES: Place[] = [
   {
     id: "luiz-mendonca",
     label: "Teatro Luiz Mendonça",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "9,0 km",
     hours: "Bilheteria até 19h",
     lng: -34.90453,
@@ -703,7 +779,8 @@ export const PLACES: Place[] = [
   {
     id: "teatro-boa-vista",
     label: "Teatro Boa Vista",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "2,3 km",
     hours: "Bilheteria até 19h",
     lng: -34.8878,
@@ -712,7 +789,8 @@ export const PLACES: Place[] = [
   {
     id: "teatro-arraial",
     label: "Teatro do Arraial Ariano Suassuna",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "1,8 km",
     hours: "Bilheteria até 18h",
     lng: -34.8813,
@@ -721,7 +799,8 @@ export const PLACES: Place[] = [
   {
     id: "teatro-guararapes",
     label: "Teatro Guararapes",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "11,0 km",
     hours: "Bilheteria até 20h",
     lng: -34.9494,
@@ -730,7 +809,8 @@ export const PLACES: Place[] = [
   {
     id: "teatro-milton-baccarelli",
     label: "Teatro Milton Baccarelli",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "6,3 km",
     hours: "Bilheteria até 19h",
     lng: -34.8992,
@@ -739,7 +819,8 @@ export const PLACES: Place[] = [
   {
     id: "teatro-ufpe",
     label: "Teatro Joaquim Cardozo (UFPE)",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "6,0 km",
     hours: "Bilheteria até 18h",
     lng: -34.9503,
@@ -748,7 +829,8 @@ export const PLACES: Place[] = [
   {
     id: "teatro-sesc-piedade",
     label: "Teatro Sesc Piedade",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "11,5 km",
     hours: "Bilheteria até 19h",
     lng: -34.9182,
@@ -757,7 +839,8 @@ export const PLACES: Place[] = [
   {
     id: "teatro-santa-tereza",
     label: "Teatro Santa Tereza (Olinda)",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "6,5 km",
     hours: "Bilheteria até 18h",
     lng: -34.8551,
@@ -766,7 +849,8 @@ export const PLACES: Place[] = [
   {
     id: "teatro-fundacao-joaquim-nabuco",
     label: "Teatro da Fundaj — Derby",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "3,2 km",
     hours: "Bilheteria até 18h",
     lng: -34.8996,
@@ -775,7 +859,8 @@ export const PLACES: Place[] = [
   {
     id: "teatro-arraial-caixa",
     label: "Teatro Caixa Cultural Recife",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "1,5 km",
     hours: "Aberto até 19h",
     lng: -34.8782,
@@ -784,7 +869,8 @@ export const PLACES: Place[] = [
   {
     id: "teatro-tenda-brincantes",
     label: "Teatro Tenda dos Brincantes",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "5,8 km",
     hours: "Eventos à noite",
     lng: -34.9175,
@@ -793,7 +879,8 @@ export const PLACES: Place[] = [
   {
     id: "teatro-arraial-comunitario",
     label: "Teatro Popular do Coque",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "3,4 km",
     hours: "Eventos à noite",
     lng: -34.8894,
@@ -802,7 +889,8 @@ export const PLACES: Place[] = [
   {
     id: "teatro-ric-brennand",
     label: "Teatro do Instituto Ricardo Brennand",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "9,1 km",
     hours: "Aberto até 17h",
     lng: -34.9589,
@@ -811,10 +899,124 @@ export const PLACES: Place[] = [
   {
     id: "teatro-uninassau",
     label: "Teatro RioMar (Uninassau)",
-    cat: "Teatros",
+    cat: "Eventos",
+    subcat: "Teatro",
     dist: "5,4 km",
     hours: "Bilheteria até 21h",
     lng: -34.8926,
     lat: -8.0928,
   },
+  // ───────────── 🏖️ PRAIAS (+10) ─────────────
+  {
+    id: "praia-pina",
+    label: "Praia do Pina",
+    cat: "Praias",
+    subcat: "Praia",
+    dist: "4,5 km",
+    hours: "Aberto 24h",
+    lng: -34.8797,
+    lat: -8.0967,
+  },
+  {
+    id: "brasilia-teimosa",
+    label: "Praia de Brasília Teimosa",
+    cat: "Praias",
+    subcat: "Praia",
+    dist: "3,2 km",
+    hours: "Aberto 24h",
+    lng: -34.8724,
+    lat: -8.0842,
+  },
+  {
+    id: "praia-piedade",
+    label: "Praia de Piedade (Jaboatão)",
+    cat: "Praias",
+    subcat: "Praia",
+    dist: "11,0 km",
+    hours: "Aberto 24h",
+    lng: -34.9138,
+    lat: -8.1636,
+  },
+  {
+    id: "praia-candeias",
+    label: "Praia de Candeias",
+    cat: "Praias",
+    subcat: "Praia",
+    dist: "13,5 km",
+    hours: "Aberto 24h",
+    lng: -34.9218,
+    lat: -8.1873,
+  },
+  {
+    id: "praia-barra-jangada",
+    label: "Praia de Barra de Jangada",
+    cat: "Praias",
+    subcat: "Praia",
+    dist: "17,0 km",
+    hours: "Aberto 24h",
+    lng: -34.9309,
+    lat: -8.2231,
+  },
+  {
+    id: "praia-pau-amarelo",
+    label: "Praia de Pau Amarelo (Paulista)",
+    cat: "Praias",
+    subcat: "Praia",
+    dist: "18,5 km",
+    hours: "Aberto 24h",
+    lng: -34.8333,
+    lat: -7.9236,
+  },
+  {
+    id: "praia-janga",
+    label: "Praia do Janga (Paulista)",
+    cat: "Praias",
+    subcat: "Praia",
+    dist: "15,0 km",
+    hours: "Aberto 24h",
+    lng: -34.8344,
+    lat: -7.9439,
+  },
+  {
+    id: "praia-rio-doce",
+    label: "Praia de Rio Doce (Olinda)",
+    cat: "Praias",
+    subcat: "Praia",
+    dist: "10,0 km",
+    hours: "Aberto 24h",
+    lng: -34.8411,
+    lat: -7.9758,
+  },
+  {
+    id: "praia-bairro-novo",
+    label: "Praia de Bairro Novo (Olinda)",
+    cat: "Praias",
+    subcat: "Praia",
+    dist: "7,5 km",
+    hours: "Aberto 24h",
+    lng: -34.8456,
+    lat: -7.9938,
+  },
+  {
+    id: "praia-carneiros",
+    label: "Praia dos Carneiros (Tamandaré)",
+    cat: "Praias",
+    subcat: "Praia",
+    dist: "98,0 km",
+    hours: "Aberto 24h",
+    lng: -35.0839,
+    lat: -8.7031,
+  },
 ];
+
+// ───────────── Helpers ─────────────
+export const filterByCat = (cat: string) =>
+  cat === "Tudo" ? PLACES : PLACES.filter((p) => p.cat === cat);
+
+export const countByCat = (cat: string) => filterByCat(cat).length;
+
+export const isDayTrip = (p: Place) =>
+  parseFloat(p.dist.replace(",", ".")) > 30;
+
+// Fotos: /public/places/<id>.jpg
+export const imgOf = (p: Place) => `/places/${p.id}.jpg`;
