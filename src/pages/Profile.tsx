@@ -68,7 +68,7 @@ export function Profile() {
 
         <div className="absolute right-5 top-5 z-30 flex items-center gap-2 text-white">
           <Link
-            to="/ajustes"
+            to="/configuracoes"
             aria-label="Configurações"
             className="rounded-full bg-white/15 p-2 backdrop-blur transition active:scale-90 hover:bg-white/25"
           >

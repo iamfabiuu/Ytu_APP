@@ -27,6 +27,7 @@ import {
 } from "./components/Guards";
 
 import "@maptiler/sdk/dist/maptiler-sdk.css";
+import Settings from "./screens/Settings";
 
 const NO_NAV = ["/login", "/cadastro", "/onboarding", "/personalizacao"];
 const FULL_BLEED = ["/onboarding", "/personalizacao", "/map"];
@@ -72,19 +73,20 @@ export default function App() {
               <Route path="/rotas/:id" element={<RouteDetail />} />
               <Route path="/rotas/destaque" element={<WeeklyRouteDetail />} />
               <Route path="/lugar/cais-do-sertao" element={<CaisDoSertao />} />
-              <Route path="/lugar/mercado-da-boa-vista" element={<MercadoBoaVista />} />
+              <Route
+                path="/lugar/mercado-da-boa-vista"
+                element={<MercadoBoaVista />}
+              />
               <Route path="/lugar/:id" element={<PlaceRoute />} />
               <Route path="/conquistas" element={<Conquistas />} />
+              <Route path="/configuracoes" element={<Settings />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-
-
       </main>
 
       {showNav && <BottomNav />}
     </div>
   );
 }
-
