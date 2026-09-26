@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Search } from "lucide-react";
 import { Top3Carousel } from "../components/Top3Carousel";
 
 const CHIPS = ["Cultura", "Música", "História", "Culinária"];
@@ -80,18 +80,10 @@ const TOP3 = [
   },
 ];
 
-function SectionHead({
-  title,
-  to,
-}: {
-  title: string;
-  to?: string;
-}) {
+function SectionHead({ title, to }: { title: string; to?: string }) {
   return (
     <div className="mb-3 flex items-baseline justify-between gap-2">
-      <h2 className="text-base font-extrabold text-ink">
-        {title}
-      </h2>
+      <h2 className="text-base font-extrabold text-ink">{title}</h2>
 
       {to && (
         <Link
@@ -110,7 +102,6 @@ export function Home() {
 
   return (
     <div className="relative isolate min-h-full overflow-hidden bg-sand">
-
       {/* =========================================================
           DECORAÇÕES DO FUNDO
           ========================================================= */}
@@ -208,51 +199,73 @@ export function Home() {
           HEADER
           ========================================================= */}
 
-      <header className="relative z-10 rounded-b-3xl bg-brand-yellow px-4 pb-5 pt-4">
+      <header className="relative z-20 overflow-hidden rounded-b-[32px] bg-gradient-to-b from-amber-300 via-yellow-400 to-yellow-400 px-5 pb-6 pt-[calc(env(safe-area-inset-top)+0.75rem)] shadow-[0_10px_30px_-12px_rgba(0,0,0,.25)]">
+        {/* blobs presos dentro do header */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="absolute -left-8 -top-4 h-36 w-36 rounded-full bg-orange-400/25 blur-3xl" />
+          <div className="absolute -right-10 top-8 h-32 w-32 rounded-full bg-rose-400/20 blur-3xl" />
+        </div>
 
-        <img
-          src="/logo.svg"
-          alt="Ytu"
-          className="h-18 w-18"
-        />
-
-        <form
-          role="search"
-          onSubmit={(e) => e.preventDefault()}
-          className="mt-4 flex items-center gap-2 rounded-full bg-white px-4 py-3 shadow-sm"
-        >
-          <span
-            aria-hidden="true"
-            className="text-ink/50"
-          >
-            🔍
-          </span>
-
-          <input
-            className="w-full bg-transparent text-sm outline-none placeholder:text-ink/40"
-            placeholder="Buscar por rotas, eventos, restaurantes, etc..."
-            aria-label="Buscar"
+        <div className="relative">
+          <img
+            src="/logo.svg"
+            alt="Ytu"
+            width={72}
+            height={72}
+            className="h-16 w-auto select-none drop-shadow-sm"
+            draggable={false}
           />
-        </form>
 
-        <p className="mt-4 text-sm font-extrabold text-ink">
-          Daqui para onde?
-        </p>
+          {/* busca */}
+          <form
+            role="search"
+            onSubmit={(e) => e.preventDefault()}
+            className="mt-4 flex items-center gap-2.5 rounded-full bg-white px-4 py-3 shadow-[0_4px_14px_-4px_rgba(0,0,0,.18)] ring-1 ring-black/5 transition focus-within:ring-2 focus-within:ring-brand-blue"
+          >
+            <Search
+              aria-hidden
+              className="h-[18px] w-[18px] shrink-0 text-ink/40"
+              strokeWidth={2.5}
+            />
+            <input
+              type="search"
+              enterKeyHint="search"
+              autoComplete="off"
+              className="min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink/40 [&::-webkit-search-cancel-button]:hidden"
+              placeholder="Buscar rotas, eventos, restaurantes…"
+              aria-label="Buscar"
+            />
+          </form>
 
-        <div className="-mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {CHIPS.map((c) => (
-            <button
-              key={c}
-              onClick={() => setActive(c)}
-              className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold transition ${
-                active === c
-                  ? "bg-brand-blue text-white"
-                  : "bg-white text-ink"
-              }`}
-            >
-              {c}
-            </button>
-          ))}
+          <p className="mt-5 text-[15px] font-extrabold tracking-tight text-ink">
+            Daqui para onde?
+          </p>
+
+          {/* chips: sangram até a borda sem criar scroll na página */}
+          <div
+            role="group"
+            aria-label="Filtrar por categoria"
+            className="-mx-5 mt-2.5 flex snap-x snap-mandatory gap-2 overflow-x-auto scroll-pl-5 px-5 pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {CHIPS.map((c) => {
+              const isActive = active === c;
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setActive(c)}
+                  aria-pressed={isActive}
+                  className={`shrink-0 snap-start rounded-full px-4 py-2 text-sm font-bold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-400 motion-safe:active:scale-95 ${
+                    isActive
+                      ? "bg-brand-blue text-white shadow-md"
+                      : "bg-white text-ink shadow-sm hover:bg-white/90"
+                  }`}
+                >
+                  {c}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </header>
 
@@ -261,7 +274,6 @@ export function Home() {
           ========================================================= */}
 
       <main className="relative z-10 mx-auto max-w-md space-y-8 px-4 pb-32 pt-5">
-
         {/* =======================================================
             ROTA DA SEMANA
             ======================================================= */}
@@ -271,7 +283,6 @@ export function Home() {
           aria-label="Rota da semana: Recife a pé e sem pressa — 4 paradas, 3h, grátis"
           className="group relative isolate flex min-h-[210px] flex-col justify-center overflow-hidden rounded-2xl bg-brand-blue p-5 text-white shadow-lg shadow-brand-blue/20 transition active:scale-[0.98]"
         >
-
           <img
             src="/image 59.svg"
             alt=""
@@ -294,25 +305,14 @@ export function Home() {
 
           <p className="relative mt-3 flex items-center gap-2 text-sm font-semibold text-white/85">
             4 paradas
-
-            <span className="text-white/35">
-              •
-            </span>
-
+            <span className="text-white/35">•</span>
             3h
-
-            <span className="text-white/35">
-              •
-            </span>
-
-            <span className="text-brand-yellow">
-              Grátis
-            </span>
+            <span className="text-white/35">•</span>
+            <span className="text-brand-yellow">Grátis</span>
           </p>
 
           <span className="relative mt-4 flex w-fit items-center gap-1.5 rounded-full bg-brand-yellow px-4 py-2 text-xs font-extrabold text-brand-blue">
             Iniciar rota
-
             <ChevronRight className="size-3.5 transition group-active:translate-x-0.5" />
           </span>
 
@@ -329,10 +329,7 @@ export function Home() {
             ======================================================= */}
 
         <section>
-          <SectionHead
-            title="Lugares que combinam com você"
-            to="/nearby"
-          />
+          <SectionHead title="Lugares que combinam com você" to="/nearby" />
 
           <ul className="space-y-3">
             {PLACES.map((p) => (
@@ -348,19 +345,14 @@ export function Home() {
                   />
 
                   <div className="min-w-0 flex-1 py-3">
-                    <p className="truncate font-extrabold text-ink">
-                      {p.name}
-                    </p>
+                    <p className="truncate font-extrabold text-ink">{p.name}</p>
 
                     <p className="mt-1 truncate text-xs text-ink/60">
                       📍 {p.info}
                     </p>
                   </div>
 
-                  <span
-                    aria-hidden="true"
-                    className="pr-4 text-xl text-ink/40"
-                  >
+                  <span aria-hidden="true" className="pr-4 text-xl text-ink/40">
                     ›
                   </span>
                 </Link>
@@ -374,10 +366,7 @@ export function Home() {
             ======================================================= */}
 
         <section>
-          <SectionHead
-            title="Explorar por categorias de Rotas"
-            to="/nearby"
-          />
+          <SectionHead title="Explorar por categorias de Rotas" to="/nearby" />
 
           <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {CATEGORIES.map((c) => (
@@ -398,9 +387,7 @@ export function Home() {
                   className="absolute inset-0 -z-10 bg-gradient-to-r from-black/15 to-transparent"
                 />
 
-                <span className="relative drop-shadow-sm">
-                  {c.label}
-                </span>
+                <span className="relative drop-shadow-sm">{c.label}</span>
               </button>
             ))}
           </div>
@@ -415,7 +402,6 @@ export function Home() {
 
           <Top3Carousel items={TOP3} />
         </section>
-
       </main>
     </div>
   );
