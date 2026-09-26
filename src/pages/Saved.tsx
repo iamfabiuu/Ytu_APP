@@ -68,22 +68,33 @@ export function Saved() {
         }}
       />
 
-      <header className="relative overflow-hidden rounded-b-[40px] bg-[#FBBF24] px-5 pb-16 pt-6">
+      <header
+        className="relative overflow-hidden rounded-b-[40px] bg-[#FBBF24] px-5 pb-16"
+        style={{ paddingTop: "calc(1.5rem + env(safe-area-inset-top))" }}
+      >
         <span
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-white/25"
           style={{
-            maskImage: "url('/image 65.svg')",
-            WebkitMaskImage: "url('/image 65.svg')",
+            maskImage: "url('/img/pattern-gonzaga.svg')",
+            WebkitMaskImage: "url('/img/pattern-gonzaga.svg')",
             maskSize: "420px",
             WebkitMaskSize: "420px",
           }}
         />
-        <img
-          src="/logo.svg"
-          alt="Vivo Recife"
-          className="relative h-18 w-auto"
-        />
+
+        <div className="relative flex h-16 items-center">
+          <img
+            src="/logo.svg"
+            alt="Vivo Recife"
+            width={160}
+            height={64}
+            style={{ height: "4rem", width: "auto" }}
+            className="block shrink-0 select-none drop-shadow-sm"
+            draggable={false}
+          />
+        </div>
+
         <h1 className="relative mt-6 text-center text-[30px] font-extrabold text-[#0B3A73]">
           Seus favoritos
         </h1>
