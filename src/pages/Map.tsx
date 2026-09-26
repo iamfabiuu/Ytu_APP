@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -9,6 +10,28 @@ import { Map as MTMap, Marker, config } from "@maptiler/sdk";
 import { LngLatBounds } from "maplibre-gl";
 import "@maptiler/sdk/dist/maptiler-sdk.css";
 import { PLACES, type Place } from "../data/places";
+
+/* ── config ─────────────────────────────────────────────── */
+
+const KEY = import.meta.env.VITE_MAPTILER_KEY as string;
+config.apiKey = KEY;
+
+const STYLE_URL = `https://api.maptiler.com/maps/streets-v2/style.json?key=${KEY}`;
+const RECIFE: [number, number] = [-34.8811, -8.0631];
+
+const ROUTE_SRC = "ytu-route";
+const ROUTE_LINE = "ytu-route-line";
+const ROUTE_CASING = "ytu-route-casing";
+
+const GEO_OPTS: PositionOptions = {
+  enableHighAccuracy: true,
+  timeout: 10_000,
+  maximumAge: 30_000,
+};
+
+const FIT_PADDING = { top: 130, bottom: 220, left: 40, right: 40 };
+
+/* ── theming dos pins ───────────────────────────────────── */
 
 const ICONS: Record<string, string> = {
   Cultura: `<path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/>`,
@@ -27,36 +50,56 @@ const CAT_COLOR: Record<string, [string, string]> = {
 };
 
 const pinSvg = (cat: string) =>
-  `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" ` +
-  `stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">` +
-  `${ICONS[cat] ?? ICONS.default}</svg>`;
+  `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${ICONS[cat] ?? ICONS.default}</svg>`;
 
-const RECIFE: [number, number] = [-34.8811, -8.0631];
+function buildPin(place: Place, onClick: () => void): HTMLButtonElement {
+  const [c1, c2] = CAT_COLOR[place.cat] ?? CAT_COLOR.default;
+  const el = document.createElement("button");
 
-const KEY = import.meta.env.VITE_MAPTILER_KEY as string;
-config.apiKey = KEY;
+  el.type = "button";
+  el.setAttribute("aria-label", place.label);
+  el.dataset.cat = place.cat;
+  el.className =
+    "relative grid h-11 w-9 origin-bottom cursor-pointer place-items-start " +
+    "justify-center transition-[transform,scale,filter] duration-300 ease-out " +
+    "will-change-transform hover:-translate-y-1 focus-visible:outline-none";
 
-const STYLE_URL = `https://api.maptiler.com/maps/streets-v2/style.json?key=${KEY}`;
+  el.innerHTML =
+    `<span class="absolute bottom-0 left-1/2 h-1.5 w-4 -translate-x-1/2 rounded-full bg-black/25 blur-[2px]"></span>` +
+    `<span class="grid size-9 rotate-45 place-items-center rounded-full rounded-br-sm border-[2.5px] border-white text-white" ` +
+    `style="background:linear-gradient(135deg,${c1},${c2});box-shadow:0 6px 14px -2px ${c2}99">` +
+    `<span class="-rotate-45">${pinSvg(place.cat)}</span></span>`;
 
-/* ============================================================
-   🆕 TIPOS DE ROTA
-   ============================================================ */
+  el.addEventListener("click", (e) => {
+    e.stopPropagation();
+    onClick();
+  });
+
+  return el;
+}
+
+function buildUserDot(): HTMLDivElement {
+  const dot = document.createElement("div");
+  dot.className =
+    "size-4 rounded-full border-2 border-white bg-blue-500 " +
+    "shadow-[0_0_0_8px_rgba(59,130,246,.25)]";
+  return dot;
+}
+
+/* ── tipos públicos ─────────────────────────────────────── */
 
 export type RouteResult = {
   distance: number;
   duration: number;
+  stops: string[];
 };
 
 export type MapHandle = {
   zoomIn: () => void;
   zoomOut: () => void;
-  locate: () => void;
+  locate: () => Promise<[number, number] | null>;
   flyTo: (id: string) => void;
-
-  /* 🆕 Calcula uma rota começando na localização atual */
-  routeTo: (ids: string[]) => void;
-
-  /* 🆕 Remove a rota */
+  routeTo: (ids: string[]) => Promise<RouteResult | null>;
   clearRoute: () => void;
 };
 
@@ -64,45 +107,53 @@ type Props = {
   selected: string | null;
   onSelect: (id: string | null) => void;
   places?: Place[];
+  onRoute?: (result: RouteResult | null) => void;
 };
 
+/* ── helpers ────────────────────────────────────────────── */
+
+const getPosition = () =>
+  new Promise<[number, number]>((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("Geolocalização não suportada neste dispositivo."));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => resolve([coords.longitude, coords.latitude]),
+      (err) => reject(new Error(err.message)),
+      GEO_OPTS,
+    );
+  });
+
+/* ── componente ─────────────────────────────────────────── */
+
 export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
-  { selected, onSelect, places = PLACES },
+  { selected, onSelect, places = PLACES, onRoute },
   ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MTMap | null>(null);
   const markersRef = useRef<Record<string, Marker>>({});
   const meRef = useRef<Marker | null>(null);
+  const userPosRef = useRef<[number, number] | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
+  // refs de callbacks → evitam closures velhas
   const onSelectRef = useRef(onSelect);
+  const onRouteRef = useRef(onRoute);
+  const placesRef = useRef(places);
 
   const [ready, setReady] = useState(false);
 
-  /* ============================================================
-     🆕 ESTADO DA LOCALIZAÇÃO DO USUÁRIO
-     ============================================================ */
-
-  const userPositionRef = useRef<[number, number] | null>(null);
-
-  /* ============================================================
-     🆕 IDs DA ROTA NO MAPA
-     ============================================================ */
-
-  const ROUTE_SOURCE_ID = "ytu-route";
-  const ROUTE_LAYER_ID = "ytu-route-line";
-
   useEffect(() => {
     onSelectRef.current = onSelect;
-  }, [onSelect]);
+    onRouteRef.current = onRoute;
+    placesRef.current = places;
+  });
 
-  /* ============================================================
-     INIT DO MAPA
-     ============================================================ */
-
+  /* init */
   useEffect(() => {
     const node = containerRef.current;
-
     if (!node || mapRef.current) return;
 
     if (!KEY) {
@@ -125,11 +176,7 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
 
     map.on("styleimagemissing", (e) => {
       if (!map.hasImage(e.id)) {
-        map.addImage(e.id, {
-          width: 1,
-          height: 1,
-          data: new Uint8Array(4),
-        });
+        map.addImage(e.id, { width: 1, height: 1, data: new Uint8Array(4) });
       }
     });
 
@@ -147,11 +194,12 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
 
     return () => {
       ro.disconnect();
+      abortRef.current?.abort();
 
       mapRef.current = null;
       markersRef.current = {};
       meRef.current = null;
-
+      userPosRef.current = null;
       setReady(false);
 
       requestAnimationFrame(() => {
@@ -164,51 +212,14 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
     };
   }, []);
 
-  /* ============================================================
-     MARCADORES
-     ============================================================ */
-
+  /* marcadores */
   useEffect(() => {
     const map = mapRef.current;
-
     if (!map || !ready) return;
 
-    Object.values(markersRef.current).forEach((m) => m.remove());
-    markersRef.current = {};
-
     places.forEach((p) => {
-      const [c1, c2] = CAT_COLOR[p.cat] ?? CAT_COLOR.default;
-
-      const el = document.createElement("button");
-
-      el.type = "button";
-      el.setAttribute("aria-label", p.label);
-      el.dataset.cat = p.cat;
-      el.style.setProperty("--pin", c2);
-
-      el.className =
-        "relative grid h-11 w-9 cursor-pointer place-items-start justify-center " +
-        "transition-transform duration-300 ease-out will-change-transform " +
-        "hover:-translate-y-1 focus-visible:outline-none";
-
-      el.innerHTML =
-        `<span class="absolute bottom-0 left-1/2 h-1.5 w-4 -translate-x-1/2 ` +
-        `rounded-full bg-black/25 blur-[2px]"></span>` +
-        `<span class="pin-head grid size-9 rotate-45 place-items-center rounded-full ` +
-        `rounded-br-sm border-[2.5px] border-white text-white" ` +
-        `style="background:linear-gradient(135deg,${c1},${c2});` +
-        `box-shadow:0 6px 14px -2px ${c2}99">` +
-        `<span class="-rotate-45">${pinSvg(p.cat)}</span></span>`;
-
-      el.addEventListener("click", (e) => {
-        e.stopPropagation();
-        onSelectRef.current(p.id);
-      });
-
-      markersRef.current[p.id] = new Marker({
-        element: el,
-        anchor: "bottom",
-      })
+      const el = buildPin(p, () => onSelectRef.current(p.id));
+      markersRef.current[p.id] = new Marker({ element: el, anchor: "bottom" })
         .setLngLat([p.lng, p.lat])
         .addTo(map);
     });
@@ -219,129 +230,79 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
     };
   }, [places, ready]);
 
-  /* ============================================================
-     🆕 LIMPAR ROTA
-     ============================================================ */
+  /* destaque + voo */
+  useEffect(() => {
+    Object.entries(markersRef.current).forEach(([id, marker]) => {
+      const node = marker.getElement();
+      const active = id === selected;
 
-  const clearRoute = () => {
+      node.style.zIndex = active ? "10" : "1";
+      node.style.scale = active ? "1.25" : "1";
+      node.style.filter = active
+        ? "drop-shadow(0 0 8px rgba(230,57,70,.7))"
+        : "none";
+    });
+
     const map = mapRef.current;
+    const place = places.find((p) => p.id === selected);
+    if (!map || !ready || !place) return;
 
+    map.flyTo({
+      center: [place.lng, place.lat],
+      zoom: Math.max(map.getZoom(), 15),
+      offset: [0, -90],
+      duration: 700,
+    });
+  }, [selected, places, ready]);
+
+  /* ── rota ─────────────────────────────────────────────── */
+
+  const clearRoute = useCallback(() => {
+    const map = mapRef.current;
     if (!map) return;
 
     try {
-      if (map.getLayer(ROUTE_LAYER_ID)) {
-        map.removeLayer(ROUTE_LAYER_ID);
-      }
-
-      if (map.getSource(ROUTE_SOURCE_ID)) {
-        map.removeSource(ROUTE_SOURCE_ID);
-      }
+      [ROUTE_LINE, ROUTE_CASING].forEach((id) => {
+        if (map.getLayer(id)) map.removeLayer(id);
+      });
+      if (map.getSource(ROUTE_SRC)) map.removeSource(ROUTE_SRC);
     } catch (error) {
-      console.warn("⚠️ Não foi possível limpar a rota:", error);
+      console.warn("⚠️ Falha ao limpar a rota:", error);
     }
-  };
+  }, []);
 
-  /* ============================================================
-     🆕 CALCULAR ROTA
-     
-     Usa:
-     
-     LOCALIZAÇÃO ATUAL
-            ↓
-        destino 1
-            ↓
-        destino 2
-            ↓
-           ...
-     
-     Perfil: walking
-     ============================================================ */
-
-  const calculateRoute = async (ids: string[]) => {
+  const syncUserMarker = useCallback((pos: [number, number]) => {
     const map = mapRef.current;
+    if (!map) return;
 
-    if (!map || !ready) return;
+    userPosRef.current = pos;
 
-    const userPosition = userPositionRef.current;
+    if (meRef.current) meRef.current.setLngLat(pos);
+    else
+      meRef.current = new Marker({ element: buildUserDot() })
+        .setLngLat(pos)
+        .addTo(map);
+  }, []);
 
-    if (!userPosition) {
-      console.warn("⚠️ Localização do usuário ainda não disponível.");
-      return;
-    }
-
-    const destinations = ids
-      .map((id) => places.find((place) => place.id === id))
-      .filter((place): place is Place => Boolean(place));
-
-    if (destinations.length === 0) {
-      console.warn("⚠️ Nenhum destino encontrado para a rota.");
-      return;
-    }
-
-    const coordinates: [number, number][] = [
-      userPosition,
-      ...destinations.map(
-        (place) => [place.lng, place.lat] as [number, number],
-      ),
-    ];
-
-    const coordinateString = coordinates
-      .map(([lng, lat]) => `${lng},${lat}`)
-      .join(";");
-
-    /*
-     * 🆕 Routing API do MapTiler
-     *
-     * walking = rota para caminhada
-     */
-    const url =
-      `https://api.maptiler.com/routing/v1/walking/` +
-      `${coordinateString}.json` +
-      `?key=${KEY}` +
-      `&overview=full` +
-      `&geometries=geojson`;
-
-    try {
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`Routing API retornou HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      const route = data.routes?.[0];
-
-      if (!route?.geometry) {
-        throw new Error("A API não retornou a geometria da rota.");
-      }
+  const drawRoute = useCallback(
+    (geometry: GeoJSON.Geometry) => {
+      const map = mapRef.current;
+      if (!map) return;
 
       clearRoute();
 
-      /* ========================================================
-         🆕 DESENHAR ROTA
-         ======================================================== */
-
-      map.addSource(ROUTE_SOURCE_ID, {
+      map.addSource(ROUTE_SRC, {
         type: "geojson",
-        data: {
-          type: "Feature",
-          properties: {},
-          geometry: route.geometry,
-        },
+        data: { type: "Feature", properties: {}, geometry },
       });
 
-      /*
-       * Uma linha branca por baixo deixa a rota mais destacada.
-       */
+      const layout = { "line-cap": "round", "line-join": "round" } as const;
+
       map.addLayer({
-        id: `${ROUTE_LAYER_ID}-outline`,
+        id: ROUTE_CASING,
         type: "line",
-        source: ROUTE_SOURCE_ID,
-        layout: {
-          "line-cap": "round",
-          "line-join": "round",
-        },
+        source: ROUTE_SRC,
+        layout,
         paint: {
           "line-color": "#FFFFFF",
           "line-width": 9,
@@ -349,228 +310,117 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
         },
       });
 
-      /*
-       * Linha principal da rota.
-       */
       map.addLayer({
-        id: ROUTE_LAYER_ID,
+        id: ROUTE_LINE,
         type: "line",
-        source: ROUTE_SOURCE_ID,
-        layout: {
-          "line-cap": "round",
-          "line-join": "round",
-        },
-        paint: {
-          "line-color": "#E63946",
-          "line-width": 5,
-          "line-opacity": 1,
-        },
+        source: ROUTE_SRC,
+        layout,
+        paint: { "line-color": "#E63946", "line-width": 5 },
       });
+    },
+    [clearRoute],
+  );
 
-      /* ========================================================
-         🆕 ENQUADRAR TODA A ROTA
-         ======================================================== */
+  const routeTo = useCallback(
+    async (ids: string[]): Promise<RouteResult | null> => {
+      const map = mapRef.current;
+      if (!map || !ready) return null;
 
-      const bounds = new LngLatBounds();
+      const destinations = ids
+        .map((id) => placesRef.current.find((p) => p.id === id))
+        .filter((p): p is Place => Boolean(p));
 
-      coordinates.forEach((coordinate) => {
-        bounds.extend(coordinate);
-      });
+      if (!destinations.length) {
+        console.warn("⚠️ Nenhum destino válido para a rota.");
+        return null;
+      }
 
-      map.fitBounds(bounds, {
-        padding: {
-          top: 130,
-          bottom: 220,
-          left: 40,
-          right: 40,
-        },
-        duration: 1000,
-        maxZoom: 16,
-      });
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
 
-      console.log("✅ Rota calculada:", {
-        distancia: route.distance,
-        duracao: route.duration,
-        paradas: destinations.map((destination) => destination.label),
-      });
-    } catch (error) {
-      console.error("❌ Erro ao calcular rota:", error);
-    }
-  };
+      try {
+        const origin = await getPosition();
+        syncUserMarker(origin);
 
-  /* ============================================================
-     🆕 DESTAQUE + VOO
-     ============================================================ */
+        const coords: [number, number][] = [
+          origin,
+          ...destinations.map((p) => [p.lng, p.lat] as [number, number]),
+        ];
 
-  useEffect(() => {
-    Object.entries(markersRef.current).forEach(([id, m]) => {
-      const node = m.getElement();
+        const path = coords.map(([lng, lat]) => `${lng},${lat}`).join(";");
+        const url =
+          `https://api.maptiler.com/routing/v1/walking/${path}.json` +
+          `?key=${KEY}&overview=full&geometries=geojson`;
 
-      const active = id === selected;
+        const res = await fetch(url, { signal: controller.signal });
+        if (!res.ok) throw new Error(`Routing API → HTTP ${res.status}`);
 
-      node.style.zIndex = active ? "10" : "1";
+        const route = (await res.json()).routes?.[0];
+        if (!route?.geometry) throw new Error("Geometria da rota ausente.");
+        if (!mapRef.current) return null;
 
-      node.style.filter = active
-        ? "drop-shadow(0 0 8px rgba(230,57,70,.7))"
-        : "none";
+        drawRoute(route.geometry);
 
-      node.style.scale = active ? "1.25" : "1";
-    });
+        const bounds = coords.reduce(
+          (acc, c) => acc.extend(c),
+          new LngLatBounds(),
+        );
 
-    const p = places.find((x) => x.id === selected);
-    const map = mapRef.current;
+        map.fitBounds(bounds, {
+          padding: FIT_PADDING,
+          duration: 1000,
+          maxZoom: 16,
+        });
 
-    if (p && map && ready) {
-      map.flyTo({
-        center: [p.lng, p.lat],
-        zoom: Math.max(map.getZoom(), 15),
-        offset: [0, -90],
-        duration: 700,
-      });
-    }
-  }, [selected, places, ready]);
+        const result: RouteResult = {
+          distance: route.distance,
+          duration: route.duration,
+          stops: destinations.map((d) => d.label),
+        };
 
-  /* ============================================================
-     API IMPERATIVA
-     ============================================================ */
+        onRouteRef.current?.(result);
+        return result;
+      } catch (error) {
+        if ((error as Error).name === "AbortError") return null;
+        console.error("❌ Erro ao calcular rota:", error);
+        onRouteRef.current?.(null);
+        return null;
+      }
+    },
+    [ready, drawRoute, syncUserMarker],
+  );
+
+  /* ── api imperativa ───────────────────────────────────── */
 
   useImperativeHandle(
     ref,
     () => ({
       zoomIn: () => mapRef.current?.zoomIn(),
-
       zoomOut: () => mapRef.current?.zoomOut(),
 
-      locate: () => {
-        if (!navigator.geolocation) {
-          console.warn("❌ Geolocalização não disponível.");
-          return;
+      locate: async () => {
+        try {
+          const pos = await getPosition();
+          syncUserMarker(pos);
+          mapRef.current?.flyTo({ center: pos, zoom: 15, duration: 800 });
+          return pos;
+        } catch (error) {
+          console.warn("📍", (error as Error).message);
+          return null;
         }
-
-        navigator.geolocation.getCurrentPosition(
-          ({ coords }) => {
-            const map = mapRef.current;
-
-            if (!map) return;
-
-            const pos: [number, number] = [coords.longitude, coords.latitude];
-
-            /*
-             * 🆕 Guarda a posição atual.
-             */
-            userPositionRef.current = pos;
-
-            if (!meRef.current) {
-              const dot = document.createElement("div");
-
-              dot.className =
-                "size-4 rounded-full border-2 border-white bg-blue-500 " +
-                "shadow-[0_0_0_8px_rgba(59,130,246,.25)]";
-
-              meRef.current = new Marker({
-                element: dot,
-              })
-                .setLngLat(pos)
-                .addTo(map);
-            } else {
-              meRef.current.setLngLat(pos);
-            }
-
-            map.flyTo({
-              center: pos,
-              zoom: 15,
-              duration: 800,
-            });
-          },
-
-          (err) => console.warn("Geolocation:", err.message),
-
-          {
-            enableHighAccuracy: true,
-            timeout: 8000,
-          },
-        );
       },
 
       flyTo: (id) => {
-        const p = places.find((x) => x.id === id);
-
-        if (p) {
-          mapRef.current?.flyTo({
-            center: [p.lng, p.lat],
-            zoom: 16,
-          });
-        }
+        const place = placesRef.current.find((p) => p.id === id);
+        if (place)
+          mapRef.current?.flyTo({ center: [place.lng, place.lat], zoom: 16 });
       },
 
-      /* ========================================================
-         🆕 ROTA
-         
-         Primeiro pega a localização do usuário.
-         Depois calcula:
-         
-         usuário → destino 1 → destino 2 → ...
-         ======================================================== */
-
-      routeTo: (ids) => {
-        if (!navigator.geolocation) {
-          console.warn("❌ Geolocalização não disponível.");
-          return;
-        }
-
-        navigator.geolocation.getCurrentPosition(
-          ({ coords }) => {
-            const pos: [number, number] = [coords.longitude, coords.latitude];
-
-            userPositionRef.current = pos;
-
-            const map = mapRef.current;
-
-            if (!map) return;
-
-            /*
-             * Atualiza o marcador da localização.
-             */
-            if (!meRef.current) {
-              const dot = document.createElement("div");
-
-              dot.className =
-                "size-4 rounded-full border-2 border-white bg-blue-500 " +
-                "shadow-[0_0_0_8px_rgba(59,130,246,.25)]";
-
-              meRef.current = new Marker({
-                element: dot,
-              })
-                .setLngLat(pos)
-                .addTo(map);
-            } else {
-              meRef.current.setLngLat(pos);
-            }
-
-            /*
-             * Agora calcula a rota.
-             */
-            void calculateRoute(ids);
-          },
-
-          (err) =>
-            console.warn(
-              "❌ Não foi possível obter sua localização:",
-              err.message,
-            ),
-
-          {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 30000,
-          },
-        );
-      },
-
-      /* 🆕 Limpar rota */
+      routeTo,
       clearRoute,
     }),
-    [places, ready],
+    [routeTo, clearRoute, syncUserMarker],
   );
 
   return <div ref={containerRef} className="absolute inset-0 z-0" />;

@@ -26,29 +26,47 @@ export function Nearby() {
   return (
     <section className="min-h-screen bg-[#F7F7F8] pb-28">
       {/* HEADER */}
-      <header className="relative overflow-hidden rounded-b-[36px] bg-[#F59300] px-5 pb-6 pt-6">
+      <header
+        className="relative overflow-hidden rounded-b-[36px] bg-[#F59300] px-5 pb-6"
+        style={{ paddingTop: "calc(1.5rem + env(safe-area-inset-top))" }}
+      >
         <span
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-[0.12]"
           style={{
-            backgroundImage: "url('/img/pattern-frevo.svg')",
+            backgroundImage: "url('/image 65.svg')",
             backgroundSize: "420px",
           }}
         />
-        <img
-          src="/logo.svg"
-          alt="Vivo Recife"
-          className="relative h-18 w-auto"
-        />
 
-        <h1 className="relative mt-8 text-[26px] font-extrabold leading-tight text-white">
+        {/* wrapper reserva a altura: a logo nunca colapsa nem empurra o título */}
+        <div className="relative flex h-16 items-center">
+          <img
+            src="/logo.svg"
+            alt="Vivo Recife"
+            width={160}
+            height={64}
+            style={{ height: "4rem", width: "auto" }}
+            className="block shrink-0 select-none drop-shadow-sm"
+            draggable={false}
+          />
+        </div>
+
+        <h1 className="relative mt-6 text-[26px] font-extrabold leading-tight text-white">
           Rotas para viver o Recife
         </h1>
 
-        <div className="relative -mx-5 mt-4 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          role="tablist"
+          aria-label="Filtrar rotas"
+          className="relative -mx-5 mt-4 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           {TABS.map((t) => (
             <button
               key={t}
+              role="tab"
+              type="button"
+              aria-selected={tab === t}
               onClick={() => setTab(t)}
               className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold transition active:scale-95 ${
                 tab === t

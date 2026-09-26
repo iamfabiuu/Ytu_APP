@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
+      content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover"
     />
 
     <title>Ytu</title>
@@ -13,12 +13,11 @@
       content="Rotas, eventos e lugares para viver Recife sem pressa."
     />
     <link rel="canonical" href="https://ytu.app/" />
+    <meta name="color-scheme" content="light" />
 
     <!-- Ícones -->
-    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="mask-icon" href="/favicon.svg" color="#FFC300" />
 
@@ -32,17 +31,11 @@
       content="black-translucent"
     />
     <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#FFC300" />
     <meta
-      name="theme-color"
-      content="#FFC300"
-      media="(prefers-color-scheme: light)"
+      name="format-detection"
+      content="telephone=no,date=no,address=no,email=no"
     />
-    <meta
-      name="theme-color"
-      content="#111111"
-      media="(prefers-color-scheme: dark)"
-    />
-    <meta name="format-detection" content="telephone=no" />
 
     <!-- Open Graph / Twitter -->
     <meta property="og:type" content="website" />
@@ -57,31 +50,87 @@
     <meta property="og:image" content="https://ytu.app/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Ytu — guia de rotas e lugares no Recife"
+    />
     <meta name="twitter:card" content="summary_large_image" />
 
     <!-- Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="image" href="/logo.svg" />
 
     <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
       html {
         background: #fdf6ec;
+        height: 100%;
+        -webkit-text-size-adjust: 100%;
+        scroll-behavior: smooth;
       }
-      html,
+
       body,
       #root {
         height: 100%;
       }
+
       body {
         margin: 0;
+        overflow-x: hidden;
         overscroll-behavior-y: none;
         -webkit-tap-highlight-color: transparent;
         -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        touch-action: manipulation; /* mata o delay de 300ms no tap */
+      }
+
+      /* iOS não dá zoom ao focar input se a fonte tiver >= 16px */
+      input,
+      textarea,
+      select,
+      button {
+        font: inherit;
+        font-size: 16px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      /* splash enquanto o bundle carrega — evita tela branca */
+      #root:empty::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: #fdf6ec url("/logo.svg") no-repeat center / 96px auto;
+      }
+
+      .noscript {
+        padding: 2rem 1.25rem;
+        font-family: system-ui, sans-serif;
+        text-align: center;
       }
     </style>
   </head>
   <body>
     <div id="root"></div>
-    <noscript>Ative o JavaScript para usar o Ytu.</noscript>
+    <noscript>
+      <p class="noscript">Ative o JavaScript para usar o Ytu. 🌻</p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

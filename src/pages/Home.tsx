@@ -210,9 +210,9 @@ export function Home() {
           <img
             src="/logo.svg"
             alt="Ytu"
-            width={72}
-            height={72}
-            className="h-16 w-auto select-none drop-shadow-sm"
+            width={18}
+            height={18}
+            className="h-18 w-auto select-none drop-shadow-sm"
             draggable={false}
           />
 
