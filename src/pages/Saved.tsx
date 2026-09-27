@@ -76,8 +76,8 @@ export function Saved() {
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-white/25"
           style={{
-            maskImage: "url('/img/pattern-gonzaga.svg')",
-            WebkitMaskImage: "url('/img/pattern-gonzaga.svg')",
+            maskImage: "url('/image 65.svg')",
+            WebkitMaskImage: "url('/image 65.svg')",
             maskSize: "420px",
             WebkitMaskSize: "420px",
           }}

@@ -64,64 +64,53 @@ export function MapScreen() {
   const recommendedRoutes = useMemo(() => {
     if (!place) return [];
 
-    return ROUTES.filter((route) =>
-      route.stops.includes(place.id),
-    );
+    return ROUTES.filter((route) => route.stops.includes(place.id));
   }, [place]);
 
   /*
    * Selecionar outro local encerra a rota atual.
    * A rota só volta quando o usuário escolher uma rota novamente.
    */
- const selectPlace = useCallback((id: string | null) => {
-  mapRef.current?.clearRoute();
+  const selectPlace = useCallback((id: string | null) => {
+    mapRef.current?.clearRoute();
 
-  setSelected(id);
-  setShowRecommendations(false);
-  setSheetExpanded(false);
-}, []);
+    setSelected(id);
+    setShowRecommendations(false);
+    setSheetExpanded(false);
+  }, []);
 
-const selectRouteStop = useCallback((id: string) => {
-  // Mantém a rota ativa no mapa.
-  setSelected(id);
-  setShowRecommendations(false);
-  setSheetExpanded(false);
+  const selectRouteStop = useCallback((id: string) => {
+    // Mantém a rota ativa no mapa.
+    setSelected(id);
+    setShowRecommendations(false);
+    setSheetExpanded(false);
 
-  // Apenas centraliza o mapa na parada escolhida.
-  mapRef.current?.flyTo(id);
-}, []);
+    // Apenas centraliza o mapa na parada escolhida.
+    mapRef.current?.flyTo(id);
+  }, []);
 
   /*
    * Trocar de categoria também encerra qualquer rota ativa.
    */
-  const handleCategoryChange = useCallback(
-    (category: string) => {
-      mapRef.current?.clearRoute();
+  const handleCategoryChange = useCallback((category: string) => {
+    mapRef.current?.clearRoute();
 
-      setCat(category);
+    setCat(category);
 
-      setSelected((current) => {
-        if (!current) return null;
+    setSelected((current) => {
+      if (!current) return null;
 
-        const nextPlaces =
-          category === "Tudo"
-            ? PLACES
-            : PLACES.filter(
-                (item) => item.cat === category,
-              );
+      const nextPlaces =
+        category === "Tudo"
+          ? PLACES
+          : PLACES.filter((item) => item.cat === category);
 
-        return nextPlaces.some(
-          (item) => item.id === current,
-        )
-          ? current
-          : null;
-      });
+      return nextPlaces.some((item) => item.id === current) ? current : null;
+    });
 
-      setShowRecommendations(false);
-      setSheetExpanded(false);
-    },
-    [],
-  );
+    setShowRecommendations(false);
+    setSheetExpanded(false);
+  }, []);
 
   /*
    * Ativa uma rota e imediatamente recolhe o painel.
@@ -206,24 +195,15 @@ const selectRouteStop = useCallback((id: string) => {
   const getTagClass = (tag: string) => {
     const normalized = tag.toUpperCase();
 
-    if (
-      normalized.includes("CULTURA") ||
-      normalized.includes("MUSEU")
-    ) {
+    if (normalized.includes("CULTURA") || normalized.includes("MUSEU")) {
       return "border-red-100 bg-red-50 text-red-600";
     }
 
-    if (
-      normalized.includes("MÚSICA") ||
-      normalized.includes("DANÇA")
-    ) {
+    if (normalized.includes("MÚSICA") || normalized.includes("DANÇA")) {
       return "border-orange-100 bg-orange-50 text-orange-600";
     }
 
-    if (
-      normalized.includes("GASTRONOMIA") ||
-      normalized.includes("FEIRA")
-    ) {
+    if (normalized.includes("GASTRONOMIA") || normalized.includes("FEIRA")) {
       return "border-yellow-100 bg-yellow-50 text-yellow-700";
     }
 
@@ -250,8 +230,11 @@ const selectRouteStop = useCallback((id: string) => {
       </div>
 
       {/* FILTROS */}
-      <div className="pointer-events-none absolute left-0 right-0 top-0 z-20">
-        <div className="pointer-events-auto flex gap-2 overflow-x-auto px-4 py-4 scrollbar-none">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20">
+        <div
+          className="pointer-events-auto flex gap-2 overflow-x-auto px-4 pb-4 scrollbar-none"
+          style={{ paddingTop: "calc(1rem + env(safe-area-inset-top))" }}
+        >
           {CATS.map((item) => {
             const active = cat === item;
 
@@ -260,9 +243,10 @@ const selectRouteStop = useCallback((id: string) => {
                 key={item}
                 type="button"
                 onClick={() => handleCategoryChange(item)}
+                aria-pressed={active}
                 className={[
                   "shrink-0 rounded-full border px-4 py-2 text-sm font-medium",
-                  "shadow-sm backdrop-blur-md transition",
+                  "shadow-sm backdrop-blur-md transition active:scale-95",
                   active
                     ? "border-red-500 bg-red-500 text-white"
                     : "border-white/70 bg-white/90 text-slate-700 hover:bg-white",
@@ -306,15 +290,9 @@ const selectRouteStop = useCallback((id: string) => {
                   <span className="h-1.5 w-12 rounded-full bg-slate-300 transition-colors hover:bg-slate-400" />
 
                   {sheetExpanded ? (
-                    <ArrowDown
-                      size={14}
-                      className="text-slate-400"
-                    />
+                    <ArrowDown size={14} className="text-slate-400" />
                   ) : (
-                    <ArrowUp
-                      size={14}
-                      className="text-slate-400"
-                    />
+                    <ArrowUp size={14} className="text-slate-400" />
                   )}
                 </button>
               </div>
@@ -326,9 +304,7 @@ const selectRouteStop = useCallback((id: string) => {
                   <div
                     className={[
                       "shrink-0 overflow-hidden rounded-2xl bg-slate-100",
-                      sheetExpanded
-                        ? "h-24 w-24"
-                        : "h-20 w-20",
+                      sheetExpanded ? "h-24 w-24" : "h-20 w-20",
                     ].join(" ")}
                   >
                     {details?.cover ? (
@@ -339,10 +315,7 @@ const selectRouteStop = useCallback((id: string) => {
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center">
-                        <MapPin
-                          size={24}
-                          className="text-slate-300"
-                        />
+                        <MapPin size={24} className="text-slate-300" />
                       </div>
                     )}
                   </div>
@@ -387,10 +360,7 @@ const selectRouteStop = useCallback((id: string) => {
 
                       {details?.reviews !== undefined && (
                         <span>
-                          {details.reviews.toLocaleString(
-                            "pt-BR",
-                          )}{" "}
-                          avaliações
+                          {details.reviews.toLocaleString("pt-BR")} avaliações
                         </span>
                       )}
 
@@ -440,10 +410,7 @@ const selectRouteStop = useCallback((id: string) => {
                       </p>
                     </div>
 
-                    <ArrowRight
-                      size={19}
-                      className="shrink-0 text-red-500"
-                    />
+                    <ArrowRight size={19} className="shrink-0 text-red-500" />
                   </button>
                 )}
               </div>
@@ -470,9 +437,7 @@ const selectRouteStop = useCallback((id: string) => {
                     <div className="rounded-2xl border border-orange-100 bg-orange-50 p-3">
                       <div className="flex items-center gap-2 text-orange-600">
                         <Clock3 size={16} />
-                        <span className="text-xs font-bold">
-                          Horário
-                        </span>
+                        <span className="text-xs font-bold">Horário</span>
                       </div>
 
                       <p className="mt-1 text-sm font-bold text-slate-900">
@@ -490,9 +455,7 @@ const selectRouteStop = useCallback((id: string) => {
                       <div className="rounded-2xl border border-yellow-100 bg-yellow-50 p-3">
                         <div className="flex items-center gap-2 text-yellow-700">
                           <Ticket size={16} />
-                          <span className="text-xs font-bold">
-                            Ingresso
-                          </span>
+                          <span className="text-xs font-bold">Ingresso</span>
                         </div>
 
                         <p className="mt-1 text-sm font-bold text-slate-900">
@@ -509,9 +472,7 @@ const selectRouteStop = useCallback((id: string) => {
                       <div className="rounded-2xl border border-sky-100 bg-sky-50 p-3">
                         <div className="flex items-center gap-2 text-sky-600">
                           <MapPin size={16} />
-                          <span className="text-xs font-bold">
-                            Distância
-                          </span>
+                          <span className="text-xs font-bold">Distância</span>
                         </div>
 
                         <p className="mt-1 text-sm font-bold text-slate-900">
@@ -525,10 +486,7 @@ const selectRouteStop = useCallback((id: string) => {
                   {details?.accessibility && (
                     <div className="mt-3 rounded-2xl border border-sky-100 bg-sky-50 p-3">
                       <div className="flex items-center gap-2">
-                        <Accessibility
-                          size={17}
-                          className="text-sky-600"
-                        />
+                        <Accessibility size={17} className="text-sky-600" />
 
                         <span className="text-sm font-bold text-slate-900">
                           {details.accessibility.title}
@@ -537,16 +495,14 @@ const selectRouteStop = useCallback((id: string) => {
 
                       {details.accessibility.features.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-2">
-                          {details.accessibility.features.map(
-                            (feature) => (
-                              <span
-                                key={feature}
-                                className="rounded-full border border-sky-100 bg-white px-2.5 py-1 text-xs font-medium text-sky-700"
-                              >
-                                {feature}
-                              </span>
-                            ),
-                          )}
+                          {details.accessibility.features.map((feature) => (
+                            <span
+                              key={feature}
+                              className="rounded-full border border-sky-100 bg-white px-2.5 py-1 text-xs font-medium text-sky-700"
+                            >
+                              {feature}
+                            </span>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -587,9 +543,7 @@ const selectRouteStop = useCallback((id: string) => {
                     {!showRecommendations ? (
                       <button
                         type="button"
-                        onClick={() =>
-                          setShowRecommendations(true)
-                        }
+                        onClick={() => setShowRecommendations(true)}
                         className="flex w-full items-center justify-between rounded-2xl border border-red-100 bg-red-50 px-4 py-3.5 text-left transition hover:bg-red-100"
                       >
                         <div>
@@ -606,10 +560,7 @@ const selectRouteStop = useCallback((id: string) => {
                           </p>
                         </div>
 
-                        <ArrowRight
-                          size={18}
-                          className="text-red-500"
-                        />
+                        <ArrowRight size={18} className="text-red-500" />
                       </button>
                     ) : (
                       <div>
@@ -626,9 +577,7 @@ const selectRouteStop = useCallback((id: string) => {
 
                           <button
                             type="button"
-                            onClick={() =>
-                              setShowRecommendations(false)
-                            }
+                            onClick={() => setShowRecommendations(false)}
                             className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
                             aria-label="Ocultar recomendações"
                           >
@@ -641,14 +590,10 @@ const selectRouteStop = useCallback((id: string) => {
                             {recommendedRoutes.map((route) => {
                               const routePlaces = route.stops
                                 .map((id) =>
-                                  PLACES.find(
-                                    (item) => item.id === id,
-                                  ),
+                                  PLACES.find((item) => item.id === id),
                                 )
                                 .filter(
-                                  (
-                                    item,
-                                  ): item is (typeof PLACES)[number] =>
+                                  (item): item is (typeof PLACES)[number] =>
                                     Boolean(item),
                                 );
 
@@ -660,9 +605,7 @@ const selectRouteStop = useCallback((id: string) => {
                                   {/* CARD DA ROTA */}
                                   <button
                                     type="button"
-                                    onClick={() =>
-                                      startRoute(route.stops)
-                                    }
+                                    onClick={() => startRoute(route.stops)}
                                     className="group w-full text-left transition hover:bg-red-50"
                                   >
                                     <div className="flex gap-3 p-3">
@@ -693,17 +636,12 @@ const selectRouteStop = useCallback((id: string) => {
                                         </p>
 
                                         <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] font-medium text-slate-500">
-                                          <span>
-                                            {route.duration}
-                                          </span>
+                                          <span>{route.duration}</span>
+
+                                          <span>{route.price}</span>
 
                                           <span>
-                                            {route.price}
-                                          </span>
-
-                                          <span>
-                                            {route.stops.length}{" "}
-                                            paradas
+                                            {route.stops.length} paradas
                                           </span>
                                         </div>
                                       </div>
@@ -718,42 +656,34 @@ const selectRouteStop = useCallback((id: string) => {
                                       </p>
 
                                       <div className="flex flex-wrap items-center gap-1.5">
-                                        {routePlaces.map(
-                                          (stop, index) => (
-                                            <div
-                                              key={stop.id}
-                                              className="flex items-center gap-1.5"
+                                        {routePlaces.map((stop, index) => (
+                                          <div
+                                            key={stop.id}
+                                            className="flex items-center gap-1.5"
+                                          >
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                selectRouteStop(stop.id)
+                                              }
+                                              className={[
+                                                "rounded-full border px-2.5 py-1",
+                                                "text-[10px] font-bold transition-colors",
+                                                stop.id === place.id
+                                                  ? "border-red-200 bg-red-50 text-red-600"
+                                                  : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100",
+                                              ].join(" ")}
                                             >
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  selectRouteStop(
-                                                    stop.id,
-                                                  )
-                                                }
-                                                className={[
-                                                  "rounded-full border px-2.5 py-1",
-                                                  "text-[10px] font-bold transition-colors",
-                                                  stop.id ===
-                                                  place.id
-                                                    ? "border-red-200 bg-red-50 text-red-600"
-                                                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100",
-                                                ].join(" ")}
-                                              >
-                                                {index + 1}.{" "}
-                                                {stop.label}
-                                              </button>
+                                              {index + 1}. {stop.label}
+                                            </button>
 
-                                              {index <
-                                                routePlaces.length -
-                                                  1 && (
-                                                <span className="text-slate-300">
-                                                  →
-                                                </span>
-                                              )}
-                                            </div>
-                                          ),
-                                        )}
+                                            {index < routePlaces.length - 1 && (
+                                              <span className="text-slate-300">
+                                                →
+                                              </span>
+                                            )}
+                                          </div>
+                                        ))}
                                       </div>
                                     </div>
                                   )}
@@ -773,8 +703,8 @@ const selectRouteStop = useCallback((id: string) => {
                             </p>
 
                             <p className="mt-1 text-xs leading-5 text-slate-400">
-                              Esse local ainda não faz parte de uma
-                              rota recomendada.
+                              Esse local ainda não faz parte de uma rota
+                              recomendada.
                             </p>
                           </div>
                         )}
