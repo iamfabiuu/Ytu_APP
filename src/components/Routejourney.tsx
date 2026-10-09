@@ -93,9 +93,11 @@ export function RouteJourney({ route, badge = "ROTA CULTURAL" }: RouteJourneyPro
 
     /* mapa */
     useEffect(() => {
-        mapRef.current?.showRoute(route.stops, Math.max(0, journey.checkpoint), mode);
+        const checkpoint = journey.status === "idle" ? null : journey.checkpoint;
+
+        mapRef.current?.showRoute(route.stops, checkpoint, mode);
         return () => mapRef.current?.clearRoute();
-    }, [route, journey.checkpoint, mode]);
+    }, [route, journey.checkpoint, journey.status, mode]);
 
     /* ações */
     const start = useCallback(() => {

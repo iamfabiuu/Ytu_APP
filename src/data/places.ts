@@ -359,8 +359,8 @@ export const PLACES: Place[] = [
     subcat: "Museu",
     dist: "2,3 km",
     hours: "Aberto até 17h",
-    lng: -34.8792,
-    lat: -8.07369,
+    lng: -34.880851360951226,
+    lat: -8.071684532752425,
   },
   {
     id: "forte-brum",

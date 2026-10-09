@@ -631,3 +631,43 @@ export function applyYtuMapTheme(map: Map) {
     YTU.orange,
   );
 }
+/*
+ * Esconde camadas do estilo base que poluem o mapa.
+ * Os ids que não existirem no estilo são ignorados.
+ */
+const HIDDEN_LAYERS: string[] = [
+  /* transporte */
+  "Transport",
+  "Station",
+  "Gondola",
+  "Ferry",
+  "Oneway",
+  "Highway junction",
+  "Highway shield",
+  "Highway shield (US)",
+  "Highway shield interstate top (US)",
+  "Highway shield interstate (US)",
+
+  /* endereço */
+  "Housenumber",
+
+  /* comércio e serviços */
+  "Shopping",
+  "Healthcare",
+  "Sport",
+  "Education",
+  "Public",
+
+  /* aeroportos */
+  "Airport gate",
+  "Airport",
+  "Heliport",
+];
+
+export function hideClutter(map: Map) {
+  HIDDEN_LAYERS.forEach((layerId) => {
+    if (map.getLayer(layerId)) {
+      map.setLayoutProperty(layerId, "visibility", "none");
+    }
+  });
+}

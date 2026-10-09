@@ -86,20 +86,6 @@ export function Nearby() {
           <RouteCard key={r.id} route={r} />
         ))}
 
-        <li>
-          <Link
-            to="/rotas/nova"
-            className="flex items-center gap-3 rounded-2xl border-2 border-dashed border-ink/20 bg-white/60 p-4 transition hover:border-[#F59300] hover:bg-white"
-          >
-            <span className="grid size-10 place-items-center rounded-xl bg-[#FCE3B4] text-xl font-bold text-[#E63946]">
-              +
-            </span>
-            <span className="flex-1 font-bold text-ink">
-              Monte sua própria rota
-            </span>
-            <span className="text-ink/40">›</span>
-          </Link>
-        </li>
       </ul>
     </section>
   );

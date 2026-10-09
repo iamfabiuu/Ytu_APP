@@ -23,4 +23,24 @@ export const ROUTES: Route[] = [
     img: "/paco-do-frevo.jpg",
     featured: true, // 👈 é ela que aparece em /rotas/destaque
   },
+
+   {
+    id: "recife-historico-popular",
+    title: "Recife Histórico e Popular",
+    description:
+      "Do Teatro de Santa Isabel ao Forte das Cinco Pontas, passando por mesas, igrejas e mercados do Centro.",
+    tag: "Econômicas",
+    duration: "3h",
+    distance: "2,0 km",
+    stops: [
+      "santa-isabel",
+      "leite",
+      "museu-arte-sacra",
+      "mercado",
+      "cinco-pontas",
+    ],
+    price: "Até R$20,00",
+    img: "/places/santa-isabel.jpg",
+  },
+  
 ];

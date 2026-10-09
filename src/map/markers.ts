@@ -219,4 +219,16 @@ export function showUserLocation(
     "shadow-[0_0_0_8px_rgba(59,130,246,.25)]";
 
   return new Marker({ element: dot }).setLngLat(position).addTo(map);
+  
+}
+
+/* Deixa cinza (bloqueados) os marcadores cujo id está em lockedIds. */
+export function setMarkerLocked(markers: MarkerMap, lockedIds: Set<string>) {
+  Object.entries(markers).forEach(([id, marker]) => {
+    const node = marker.getElement();
+    const locked = lockedIds.has(id);
+
+    node.dataset.locked = locked ? "true" : "false";
+    node.style.filter = locked ? "grayscale(1) opacity(.75)" : "";
+  });
 }

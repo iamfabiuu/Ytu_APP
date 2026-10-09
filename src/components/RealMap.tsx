@@ -9,7 +9,7 @@ import {
 import { Map as MTMap, Marker, config } from "@maptiler/sdk";
 import "@maptiler/sdk/dist/maptiler-sdk.css";
 import { PLACES, type Place } from "../data/places";
-import { applyYtuMapTheme } from "../lib/ytuMapTheme";
+import { applyYtuMapTheme, hideClutter } from "../lib/ytuMapTheme";
 import { addLandmarks, removeLandmarks } from "../map/landmarks";
 import {
   highlightMarker,
@@ -17,12 +17,14 @@ import {
   removeMarkers,
   renderPlaceMarkers,
   setMarkerLabels,
+  setMarkerLocked,
   showUserLocation,
   type MarkerMap,
 } from "../map/markers";
 import { createRouteController } from "../map/route";
 import { DEFAULT_MODE, type TravelMode } from "../lib/travelMode";
 import { addBoats, removeBoats } from "../map/boatLayers";
+
 
 const RECIFE: [number, number] = [-34.8811, -8.0631];
 
@@ -48,9 +50,15 @@ export type MapHandle = {
   locate: () => void;
   flyTo: (id: string) => void;
 
+  /*
+   * currentCheckpoint:
+   *   null (padrão) = prévia da rota, sem jornada
+   *   -1            = jornada iniciada, sem check-in
+   *   0+            = índice da última parada com check-in
+   */
   showRoute: (
     ids: string[],
-    currentCheckpoint?: number,
+    currentCheckpoint?: number | null,
     mode?: TravelMode,
   ) => void;
 
@@ -65,7 +73,7 @@ type Props = {
 
 type PendingRoute = {
   ids: string[];
-  currentCheckpoint: number;
+  currentCheckpoint: number | null;
   fitRoute: boolean;
   mode: TravelMode;
 };
@@ -86,7 +94,8 @@ type PendingRoute = {
  *
  * Pinos:
  * - sem rota: todos os lugares recebidos ganham pino;
- * - com rota: somente as paradas da rota ganham pino.
+ * - com rota: somente as paradas da rota ganham pino;
+ * - em jornada: paradas ainda não liberadas ficam cinza (bloqueadas).
  */
 export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
   { selected, onSelect, places = PLACES },
@@ -128,6 +137,9 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
    */
   const [routeKey, setRouteKey] = useState<string | null>(null);
 
+  /* ids das paradas bloqueadas (cinza), separados por vírgula */
+  const [lockedKey, setLockedKey] = useState("");
+
   /*
    * Lugares que devem ter pino agora.
    */
@@ -148,7 +160,7 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
 
   const drawRoute = (
     ids: string[],
-    currentCheckpoint = 0,
+    currentCheckpoint: number | null = null,
     fitRoute = false,
     mode: TravelMode = DEFAULT_MODE,
   ) => {
@@ -179,6 +191,7 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
     activeRouteRef.current = null;
 
     setRouteKey(null);
+    setLockedKey("");
 
     routeInitializedRef.current = false;
     lastModeRef.current = null;
@@ -220,8 +233,7 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
         const naAgua = layers.includes("Water");
 
         console.log(
-          `📍 [${e.lngLat.lng.toFixed(6)}, ${e.lngLat.lat.toFixed(6)}] ${
-            naAgua ? "🌊 água" : "⚠️ não é água"
+          `📍 [${e.lngLat.lng.toFixed(6)}, ${e.lngLat.lat.toFixed(6)}] ${naAgua ? "🌊 água" : "⚠️ não é água"
           }`,
         );
       });
@@ -240,6 +252,9 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
     map.on("load", () => {
       /* tema visual do YTU */
       applyYtuMapTheme(map);
+
+      /* esconde POIs, números de ônibus e outros ruídos do estilo base */
+      hideClutter(map);
 
       /* Marco Zero como geometria real do mapa */
       addLandmarks(map);
@@ -339,6 +354,17 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
     };
   }, [visiblePlaces, ready]);
 
+  /* ---------- paradas bloqueadas ---------- */
+
+  useEffect(() => {
+    if (!ready) return;
+
+    setMarkerLocked(
+      markersRef.current,
+      new Set(lockedKey ? lockedKey.split(",") : []),
+    );
+  }, [lockedKey, visiblePlaces, ready]);
+
   /* ---------- nomes dos locais conforme o zoom ---------- */
 
   useEffect(() => {
@@ -390,26 +416,12 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
      * Se existe uma rota ativa, ela NÃO deve desaparecer
      * quando selected muda.
      *
-     * Redesenhamos a mesma rota sem fitRoute.
-     *
-     * Isso mantém:
-     *
-     * rota completa
-     *      +
-     * parada selecionada
-     *      +
-     * câmera focada na parada
+     * Redesenhamos a mesma rota sem fitRoute, para a câmera
+     * não voltar a enquadrar a rota inteira.
      */
     const activeRoute = activeRouteRef.current;
 
     if (activeRoute) {
-      /*
-       * Pequeno atraso para deixar o flyTo iniciar antes
-       * de garantir novamente as camadas da rota.
-       *
-       * Não usamos fitRoute aqui, portanto a câmera não
-       * volta para enquadrar a rota inteira.
-       */
       const timer = window.setTimeout(() => {
         const currentRoute = activeRouteRef.current;
 
@@ -466,8 +478,7 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
               duration: 800,
             });
           },
-          (err) =>
-            console.warn("Geolocation:", err.message),
+          (err) => console.warn("Geolocation:", err.message),
           {
             enableHighAccuracy: true,
             timeout: 8000,
@@ -488,23 +499,19 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
 
       showRoute: (
         ids,
-        currentCheckpoint = 0,
+        currentCheckpoint = null,
         mode = DEFAULT_MODE,
       ) => {
         /*
-         * Guarda a rota como a rota atualmente ativa.
-         *
-         * A partir daqui, mudar selected não significa
-         * sair da rota.
+         * A próxima parada (checkpoint + 1) já fica liberada;
+         * da seguinte em diante, bloqueadas. Sem jornada (null),
+         * nada fica bloqueado.
          */
-        const route: PendingRoute = {
-          ids,
-          currentCheckpoint,
-          fitRoute: false,
-          mode,
-        };
-
-        activeRouteRef.current = route;
+        setLockedKey(
+          currentCheckpoint === null
+            ? ""
+            : ids.slice(currentCheckpoint + 2).join(","),
+        );
 
         setRouteKey(ids.join(","));
 
@@ -519,6 +526,10 @@ export const RealMap = forwardRef<MapHandle, Props>(function RealMap(
 
         lastModeRef.current = mode;
 
+        /*
+         * Guarda como rota ativa: a partir daqui, mudar selected
+         * não significa sair da rota.
+         */
         const pending: PendingRoute = {
           ids,
           currentCheckpoint,

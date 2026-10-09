@@ -27,10 +27,22 @@ const OSRM_URL = "https://router.project-osrm.org/route/v1/foot";
  */
 const ROUTE_PREFIX = "ytu-route";
 
+/* prévia da rota inteira (sem jornada) */
 const ROUTE_SOURCE_ID = "ytu-route";
 const ROUTE_OUTLINE_ID = "ytu-route-outline";
 const ROUTE_LAYER_ID = "ytu-route-line";
 
+/* trechos bloqueados (cinza tracejado) */
+const ROUTE_LOCKED_SOURCE_ID = "ytu-route-locked";
+const ROUTE_LOCKED_OUTLINE_ID = "ytu-route-locked-outline";
+const ROUTE_LOCKED_LAYER_ID = "ytu-route-locked-line";
+
+/* trecho até a próxima parada (terracota tracejado) */
+const ROUTE_NEXT_SOURCE_ID = "ytu-route-next";
+const ROUTE_NEXT_OUTLINE_ID = "ytu-route-next-outline";
+const ROUTE_NEXT_LAYER_ID = "ytu-route-next-line";
+
+/* trechos concluídos (terracota contínuo) */
 const ROUTE_PROGRESS_SOURCE_ID = "ytu-route-progress";
 const ROUTE_PROGRESS_OUTLINE_ID = "ytu-route-progress-outline";
 const ROUTE_PROGRESS_LAYER_ID = "ytu-route-progress-line";
@@ -57,8 +69,12 @@ export type DrawRouteOptions = {
   places: Place[];
   /* ids das paradas, na ordem da rota */
   ids: string[];
-  /* quantos trechos já foram concluídos (pintados como progresso) */
-  currentCheckpoint: number;
+  /*
+   * null = sem jornada (prévia da rota inteira)
+   * -1   = jornada iniciada, ainda sem check-in
+   * 0+   = índice da última parada com check-in
+   */
+  currentCheckpoint: number | null;
   /* se deve enquadrar a câmera na rota inteira */
   fitRoute: boolean;
   /* a pé (padrão) ou bicicleta */
@@ -321,7 +337,7 @@ export function createRouteController(): RouteController {
         if (mode !== DEFAULT_MODE) {
           console.warn(
             `⚠️ Sem geometria de "${mode}" para o trecho ${from.id} → ${to.id}. ` +
-              `Rode: npx tsx scripts/generate-segments.ts --mode=${mode}`,
+            `Rode: npx tsx scripts/generate-segments.ts --mode=${mode}`,
           );
           removeRouteVisuals(map);
           return;
@@ -350,51 +366,102 @@ export function createRouteController(): RouteController {
         return;
       }
 
-      /* rota completa e trechos já concluídos */
       const fullCoordinates = joinSegments(segments);
-
-      const completedSegments = Math.max(
-        0,
-        Math.min(currentCheckpoint, segments.length),
-      );
-
-      const progressCoordinates = joinSegments(
-        segments.slice(0, completedSegments),
-      );
 
       removeRouteVisuals(map);
 
-      addLine(map, {
-        sourceId: ROUTE_SOURCE_ID,
-        outlineId: ROUTE_OUTLINE_ID,
-        lineId: ROUTE_LAYER_ID,
-        coordinates: fullCoordinates,
-        color: "#E87532",
-        dashed: true,
-      });
-
-      if (progressCoordinates.length >= 2) {
+      if (currentCheckpoint === null) {
+        /* sem jornada: prévia da rota inteira */
         addLine(map, {
-          sourceId: ROUTE_PROGRESS_SOURCE_ID,
-          outlineId: ROUTE_PROGRESS_OUTLINE_ID,
-          lineId: ROUTE_PROGRESS_LAYER_ID,
-          coordinates: progressCoordinates,
-          color: "#C85A3D",
-          dashed: false,
+          sourceId: ROUTE_SOURCE_ID,
+          outlineId: ROUTE_OUTLINE_ID,
+          lineId: ROUTE_LAYER_ID,
+          coordinates: fullCoordinates,
+          color: "#E87532",
+          dashed: true,
         });
+      } else {
+        const done = Math.max(
+          -1,
+          Math.min(currentCheckpoint, segments.length),
+        );
+
+        const completed = segments.slice(0, Math.max(0, done));
+        const next =
+          done >= 0 && done < segments.length ? segments[done] : null;
+        const locked = segments.slice(done + 1);
+
+        /* bloqueados: cinza tracejado */
+        if (locked.length > 0) {
+          addLine(map, {
+            sourceId: ROUTE_LOCKED_SOURCE_ID,
+            outlineId: ROUTE_LOCKED_OUTLINE_ID,
+            lineId: ROUTE_LOCKED_LAYER_ID,
+            coordinates: joinSegments(locked),
+            color: "#9CA3AF",
+            dashed: true,
+          });
+        }
+
+        /* próximo trecho: terracota tracejado */
+        if (next && next.length >= 2) {
+          addLine(map, {
+            sourceId: ROUTE_NEXT_SOURCE_ID,
+            outlineId: ROUTE_NEXT_OUTLINE_ID,
+            lineId: ROUTE_NEXT_LAYER_ID,
+            coordinates: next,
+            color: "#C85A3D",
+            dashed: true,
+          });
+        }
+
+        /* concluídos: terracota contínuo */
+        if (completed.length > 0) {
+          addLine(map, {
+            sourceId: ROUTE_PROGRESS_SOURCE_ID,
+            outlineId: ROUTE_PROGRESS_OUTLINE_ID,
+            lineId: ROUTE_PROGRESS_LAYER_ID,
+            coordinates: joinSegments(completed),
+            color: "#C85A3D",
+            dashed: false,
+          });
+        }
       }
 
       if (fullCoordinates.length === 0 || !fitRoute) {
         return;
       }
 
-      map.fitBounds(getBounds(fullCoordinates), {
-        padding: {
-          top: 180,
-          bottom: 180,
-          left: 60,
-          right: 60,
-        },
+      /*
+       * Padding proporcional ao tamanho do mapa: no MapScreen (tela cheia)
+       * chega a 180 px; no mapa pequeno da jornada fica em ~60 px.
+       */
+      const container = map.getContainer();
+      const padV = Math.min(180, Math.round(container.clientHeight * 0.25));
+      const padH = Math.min(60, Math.round(container.clientWidth * 0.12));
+
+      /* jornada iniciada, sem check-in: foca na primeira parada */
+      if (currentCheckpoint === -1) {
+        map.flyTo({
+          center: [points[0].lng, points[0].lat],
+          zoom: 16,
+          duration: 800,
+        });
+        return;
+      }
+
+      /* depois de um check-in: enquadra o trecho até a próxima parada */
+      const nextLeg =
+        currentCheckpoint !== null &&
+          currentCheckpoint >= 0 &&
+          currentCheckpoint < segments.length
+          ? segments[currentCheckpoint]
+          : null;
+
+      /* prévia ou rota concluída: enquadra a rota inteira */
+      map.fitBounds(getBounds(nextLeg ?? fullCoordinates), {
+        padding: { top: padV, bottom: padV, left: padH, right: padH },
+        maxZoom: 17,
         duration: 800,
       });
     } catch (error) {
